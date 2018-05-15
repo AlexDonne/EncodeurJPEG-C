@@ -13,8 +13,8 @@ typedef struct pixelNB{
 }PixelNB;
 
 typedef struct mcupixels{
-    PixelRGB **blocsRGB;
-    PixelNB **blocsNB;
+    PixelRGB blocsRGB[8][8];
+    PixelNB blocsNB[8][8];
 }MCUPixels;
 
 typedef struct mcuTransform{
