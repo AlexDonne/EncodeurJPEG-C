@@ -3,13 +3,13 @@
 #define ETU_STRUCTURES_H
 
 typedef struct pixelRGB{
-        int rouge;
-        int bleu;
-        int vert;
+    uint8_t rouge;
+    uint8_t bleu;
+    uint8_t vert;
 }PixelRGB;
 
 typedef struct pixelNB{
-    int valeur;
+    uint8_t valeur;
 }PixelNB;
 
 typedef struct mcupixels{
