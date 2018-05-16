@@ -3,8 +3,10 @@
 #include <stdint.h>
 #include <math.h>
 #include "../include/qtables.h"
-#include "../include/algo_matrices.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265
+#endif
 
 void zigzag(int16_t *matrice, int16_t *zig_matrice) {
     for (int i = 0; i < 64; i++) {

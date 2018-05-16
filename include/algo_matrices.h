@@ -2,11 +2,8 @@
 #define _ALGO_MATRICE_H_
 
 
-#ifndef M_PI
-#define M_PI 3.14159265
-#endif
 /* Matrice de la page 37 du poly (utile pour vérifier nos algorithmes) */
-
+//
 const uint8_t ordre_zigzag[64] = {
   0x00,
   0x01, 0x10,

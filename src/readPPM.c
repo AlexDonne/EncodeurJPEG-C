@@ -13,7 +13,7 @@ ImagePPM* creerImagePPM(char *chemin){
 
 void lireFichierPPM(ImagePPM *image){
     FILE* fichier = fopen(image->chemin, "rb");
-    char lettre = fgetc(fichier);
+    fgetc(fichier);
     char magic_number = fgetc(fichier);
 
     fgetc(fichier); //enlever saut de ligne

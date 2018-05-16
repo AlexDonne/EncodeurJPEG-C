@@ -13,6 +13,7 @@
 
 MCUTransform rgbTOycbcr(MCUPixelsRGB mcuPixels);
 
+MCUTransform* rgbTOycbcrAllMcus(MCUPixelsRGB* mcus, int taille);
 /**
  * Applique le zigzag sur un MCU
  * @param mcu
