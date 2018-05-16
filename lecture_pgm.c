@@ -3,16 +3,8 @@
 #include <stdint.h>
 
 
-void getbloc88(int i0, int j0, int nb_col) {
-  for (int i = i0; i < i0 + 8; i++) {
-    for (int j = j0; j < j0 + 8; j ++) {
-      printf("%d\n", i*nb_col + j);
-    }
-  }
-}
-
 int main() {
-  FILE* fichier1 = fopen("gris.pgm", "rb");
+  FILE* fichier1 = fopen("mon_image.pgm", "rb");
   char lettre = fgetc(fichier1);
   char chiffre = fgetc(fichier1); // vaut 5 normalement
   printf("%c%c\n", lettre, chiffre);
@@ -36,20 +28,27 @@ int main() {
   fgetc(fichier1); //0x35
   fgetc(fichier1); //0x0a
 
+
   uint8_t tab[nb_col*nb_ligne];
   fread(tab, sizeof(uint8_t), nb_col*nb_ligne, fichier1);
+  // tab contient tous les pixels de l'image de départ
 
   uint8_t tab2[nb_col*nb_ligne];
-
-  nb_col = 16;
-  nb_ligne = 16;
+  int indice = 0;
   for (int i = 0; i < nb_ligne; i += 8) {
     for (int j = 0; j < nb_col; j += 8) {
-      getbloc88(i, j, nb_col);
+      for (int i_b = i; i_b < i + 8; i_b++) {
+        for (int j_b = j; j_b < j + 8; j_b++) {
+          tab2[indice] = tab[i_b*nb_col + j_b];
+          indice += 1;
+        }
+      }
     }
   }
-
-
+  FILE* fichier2 = fopen("image_bloc.pgm", "wb");
+  fwrite(tab2, sizeof(uint8_t), nb_col*nb_ligne, fichier2);
+  // tab2 contient tous les pixels mais réorganisés par bloc de 8*8
 
   fclose(fichier1);
+  fclose(fichier3);
 }
