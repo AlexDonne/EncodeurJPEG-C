@@ -2,6 +2,7 @@
 #ifndef ETU_STRUCTURES_H
 #define ETU_STRUCTURES_H
 
+
 typedef struct pixelRGB{
         int rouge;
         int bleu;
@@ -13,14 +14,15 @@ typedef struct pixelNB{
 }PixelNB;
 
 typedef struct mcupixels{
-    PixelRGB blocsRGB[8][8];
-    PixelNB blocsNB[8][8];
+    PixelRGB *blocsRGB;
+    PixelNB *blocsNB;
 }MCUPixels;
 
 typedef struct mcuTransform{
-    uint8_t Y[8][8];
-    int8_t Cb[8][8];
-    int8_t Cr[8][8];
+    int8_t **Y;
+    int tailleY;
+    int8_t Cb[64];
+    int8_t Cr[64];
 
 }MCUTransform;
 
