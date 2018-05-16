@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "qtables.h"
 
 
 void afficher_matrice8x8_8(uint8_t *matrice) {
@@ -24,45 +25,18 @@ void afficher_matrice8x8_16(uint16_t *matrice) {
   printf("\n");
 }
 
-/* Matrice de la page 37 du poly (utile pour vérifier nos algorithmes) */
-uint8_t matrice_test[64] = {
-  0xa6, 0xa0, 0x9a, 0x98, 0x9a, 0x9a, 0x96, 0x91,
-  0xa0, 0xa3, 0x9d, 0x8e, 0x88, 0x8f, 0x95, 0x94,
-  0xa5, 0x97, 0x96, 0xa1, 0x9f, 0x90, 0x90, 0x9e,
-  0xa6, 0x9a, 0x91, 0x91, 0x92, 0x90, 0x90, 0x93,
-  0xc9, 0xd9, 0xc8, 0x98, 0x85, 0x98, 0xa2, 0x95,
-  0xf0, 0xf5, 0xf9, 0xea, 0xbf, 0x98, 0x90, 0x9d,
-  0xe9, 0xe1, 0xf3, 0xfd, 0xf2, 0xaf, 0x8a, 0x90,
-  0xe6, 0xf2, 0xf1, 0xed, 0xf8, 0xfb, 0xd0, 0x95
-};
-
-const uint8_t ordre_zigzag[64] = {
-  0x00,
-  0x01, 0x10,
-  0x20, 0x11, 0x02,
-  0x03, 0x12, 0x21, 0x30,
-  0x40, 0x31, 0x22, 0x13, 0x04,
-  0x05, 0x14, 0x23, 0x32, 0x41, 0x50,
-  0x60, 0x51, 0x42, 0x33, 0x24, 0x15, 0x06,
-  0x07, 0x16, 0x25, 0x34, 0x43, 0x52, 0x61, 0x70,
-  0x71, 0x62, 0x53, 0x44, 0x35, 0x26, 0x17,
-  0x27, 0x36, 0x45, 0x54, 0x63, 0x72,
-  0x73, 0x64, 0x55, 0x46, 0x37,
-  0x47, 0x56, 0x65, 0x74,
-  0x75, 0x66, 0x57,
-  0x67, 0x76,
-  0x77
-};
-
-
-void zigzag(uint16_t *matrice, uint16_t *zig_matrice) {
+void zigzag(int16_t *matrice, int16_t *zig_matrice) {
   for (int i = 0; i < 64; i++) {
       zig_matrice[i] = matrice[(ordre_zigzag[i] >> 4)*8 + (ordre_zigzag[i] & 7)];
     }
 }
 
 
-void discrete_cosinus_transform(uint8_t *matrice, uint16_t *dct_matrice) {
+void discrete_cosinus_transform(uint8_t *matrice, int16_t *dct_matrice) {
+  /* on réalise l'opération -128 */
+  for (int i = 0; i < 64; i++) {
+    matrice[i] = (matrice[i] >= 128) ? matrice[i] - 128 : matrice[i] + 128;
+  }
   float somme;
   float n = 8;
   float c_i;
@@ -72,25 +46,34 @@ void discrete_cosinus_transform(uint8_t *matrice, uint16_t *dct_matrice) {
       somme = 0;
       for (int x = 0; x < 8; x++) {
         for (int y = 0; y < 8; y++) {
-          somme += matrice[x*8+y] * cos((2*x+1)*i*M_PI/(2*n)) * cos((2*y+1)*j*M_PI/(2*n));
+          somme += ((int16_t) matrice[x*8+y]) * cos((2*x+1)*i*M_PI/(2*n)) * cos((2*y+1)*j*M_PI/(2*n));
         }
       }
       c_i = (i == 0) ? 1/sqrt(2): 1;
       c_j = (j == 0) ? 1/sqrt(2): 1;
-      dct_matrice[i*8+j] = (uint16_t) 2/n * c_i * c_j * somme;
+      dct_matrice[i*8+j] = (int16_t) round(2/n * c_i * c_j * somme);
     }
   }
 }
 
+void quantificationY(int16_t *matrice) {
+  for (int i = 0; i < 64; i ++) {
+    matrice[i] = matrice[i] / compressed_Y_table[i];
+  }
+}
 
 
+/*
 int main() {
   afficher_matrice8x8_8(matrice_test);
-  uint16_t dct_matrice[64];
+  int16_t dct_matrice[64];
   discrete_cosinus_transform(matrice_test, dct_matrice);
   afficher_matrice8x8_16(dct_matrice);
-  uint16_t zig_matrice[64];
+  int16_t zig_matrice[64];
   zigzag(dct_matrice, zig_matrice);
+  afficher_matrice8x8_16(zig_matrice);
+  quantificationY(zig_matrice);
   afficher_matrice8x8_16(zig_matrice);
   return EXIT_SUCCESS;
 }
+*/
