@@ -36,10 +36,10 @@ typedef struct mcupixelsNB{
 }MCUPixelsNB;
 
 typedef struct mcuTransform{
-    int8_t **Y;
+    int16_t **Y;
     int tailleY;
-    int8_t Cb[64];
-    int8_t Cr[64];
+    int16_t Cb[64];
+    int16_t Cr[64];
 
 }MCUTransform;
 

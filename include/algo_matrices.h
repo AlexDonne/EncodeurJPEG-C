@@ -1,8 +1,11 @@
 #ifndef _ALGO_MATRICE_H_
 #define _ALGO_MATRICE_H_
 
-/* Matrice de la page 37 du poly (utile pour vérifier nos algorithmes) */
 
+#ifndef M_PI
+#define M_PI 3.14159265
+#endif
+/* Matrice de la page 37 du poly (utile pour vérifier nos algorithmes) */
 
 const uint8_t ordre_zigzag[64] = {
   0x00,
@@ -24,7 +27,7 @@ const uint8_t ordre_zigzag[64] = {
 
 void zigzag(int16_t *matrice, int16_t *zig_matrice);
 
-void discrete_cosinus_transform(uint8_t *matrice, int16_t *dct_matrice)
+void discrete_cosinus_transform(uint8_t *matrice, int16_t *dct_matrice);
 
 void quantificationY(int16_t *matrice);
 

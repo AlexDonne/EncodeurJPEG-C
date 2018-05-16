@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "qtables.h"
+#include "../include/qtables.h"
 #include "../include/algo_matrices.h"
 
 

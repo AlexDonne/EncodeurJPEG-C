@@ -1,5 +1,5 @@
-#include "../include/operationMCU.h"
-#include "../include/structures.h"
+#include "../src/operationMCU.c"
+#include "../src/algo_matrices.c"
 
 void afficher_mcu(MCUTransform mcu){
     printf("MCU\n");
@@ -27,9 +27,9 @@ void afficher_mcu(MCUTransform mcu){
 int main() {
     MCUTransform mcu;
     mcu.tailleY = 2;
-    mcu.Y = malloc(mcu.tailleY * sizeof(int8_t));
+    mcu.Y = malloc(mcu.tailleY * sizeof(int16_t));
     for (int i = 0; i < mcu.tailleY; ++i) {
-        mcu.Y[i] = malloc(64 * sizeof(int8_t));
+        mcu.Y[i] = malloc(64 * sizeof(int16_t));
         for (int j = 0; j < 64; ++j) {
             mcu.Y[i][j] = i + j;
         }
@@ -43,9 +43,9 @@ int main() {
     afficher_mcu(mcu);
     MCUTransform zig_mcu;
     zig_mcu.tailleY = 2;
-    zig_mcu.Y = malloc(zig_mcu.tailleY * sizeof(int8_t));
+    zig_mcu.Y = malloc(zig_mcu.tailleY * sizeof(int16_t));
     for (int i = 0; i < zig_mcu.tailleY; ++i) {
-        zig_mcu.Y[i] = malloc(64 * sizeof(int8_t));
+        zig_mcu.Y[i] = malloc(64 * sizeof(int16_t));
     }
     MCUzigzag(&mcu, &zig_mcu);
     afficher_mcu(zig_mcu);
