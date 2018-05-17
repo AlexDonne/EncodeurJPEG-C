@@ -20,8 +20,9 @@ MCUTransform rgbTOycbcr(MCUPixelsRGB mcuPixels);
  */
 void MCUzigzag(MCUTransform *mcu, MCUTransform *zig_mcu);
 
+void MCUdct(MCUTransform *mcu, MCUTransform *dct_mcu);
 
-
+void MCUquantification(MCUTransform *mcu);
 
 
 #endif //ENCODEURJPEG_C_OPERATIONMCU_H
