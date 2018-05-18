@@ -9,13 +9,14 @@
  * @return
  */
 MCUsMatrice *imageToMCUs(ImagePPM *image) {
-
+    int nouvLargeur;
+    int nouvHauteur;
     if (image->largeur % 8 != 0 || image->hauteur % 8 != 0) {
         adaptationMCU(image);
     }
     MCUsMatrice *matMCUs = malloc(sizeof(MCUsMatrice));
     matMCUs->nbcol = image->largeur / 8;
-    matMCUs->nblignes = image->hauteur / 8;
+    matMCUs->nblignes = image->hauteur / 8;//Prob ici
     int taille = matMCUs->nbcol * matMCUs->nblignes;
     matMCUs->mcus = malloc(taille * sizeof(MCUPixels));
     int debcolbase = 0;
@@ -52,9 +53,7 @@ MCUsMatrice *imageToMCUs(ImagePPM *image) {
         }
         matMCUs->mcus[indTab] = mcu;
     }
-
-    //afficherMCUs(matMCUs);
-    libererImage(image);
+    afficherMCUs(matMCUs);
 
     return matMCUs;
 }
@@ -109,8 +108,6 @@ void adaptationMCU(ImagePPM *image) {
         libererPixelsNB(image->pixelsNB, image->hauteur);
         image->pixelsNB = nouvPixels;
     }
-    image->hauteur = nouvHauteur;
-    image->largeur = nouvLargeur;
 }
 
 
@@ -126,19 +123,6 @@ void libererPixelsNB (PixelNB** pixels, int hauteur){
         free(pixels[i]);
     }
     free(pixels);
-}
-
-/**
- * Libère l'espace mémoire d'une ImagePPM
- * @param image
- */
-void libererImage(ImagePPM *image) {
-    if (image->type == RGB) {
-        libererPixelsRGB(image->pixelsRGB, image->hauteur);
-    } else {
-        libererPixelsNB(image->pixelsNB, image->hauteur);
-    }
-    free(image);
 }
 
 /**

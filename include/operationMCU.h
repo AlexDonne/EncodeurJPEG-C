@@ -24,9 +24,9 @@ void libererMCUsMatrice(MCUsMatrice* mcusMat);
 
 void MCUsTransformToQuantif(MCUsTransformMat *mcUsTransformMat);
 
-void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu);
+void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *final);
 
-void MCUToQuantifNB(MCUTransform *mcu, MCUTransform *dct_mcu);
+void MCUToQuantifNB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *final);
 
 void afficherAllMCUs(MCUsTransformMat *mcusTransformMat);
 

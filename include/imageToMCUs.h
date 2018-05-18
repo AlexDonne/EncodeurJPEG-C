@@ -11,8 +11,6 @@ void libererPixelsRGB (PixelRGB** pixels, int hauteur);
 
 void libererPixelsNB (PixelNB** pixels, int hauteur);
 
-void libererImage(ImagePPM *image);
-
 void afficherMCUs(MCUsMatrice *tabMcus);
 
 void afficherMCURGB(MCUPixels mcu);

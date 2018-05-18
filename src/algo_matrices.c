@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <math.h>
 #include "../include/qtables.h"
+#include "../include/algo_matrices.h"
 
 const uint8_t ordre_zigzag[64] = {
         0x00,
