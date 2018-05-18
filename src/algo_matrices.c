@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "qtables.h"
+#include "../include/qtables.h"
 #include "../include/algo_matrices.h"
 
 
@@ -27,8 +27,7 @@ void discrete_cosinus_transform(uint8_t *matrice, int16_t *dct_matrice) {
             somme = 0;
             for (int x = 0; x < 8; x++) {
                 for (int y = 0; y < 8; y++) {
-                    somme += ((int16_t) matrice[x * 8 + y]) * cos((2 * x + 1) * i * M_PI / (2 * n)) *
-                             cos((2 * y + 1) * j * M_PI / (2 * n));
+                    somme += ((int16_t) matrice[x * 8 + y]) * cos((2 * x + 1) * i * M_PI / (2 * n)) * cos((2 * y + 1) * j * M_PI / (2 * n));
                 }
             }
             c_i = (i == 0) ? 1 / sqrt(2) : 1;
