@@ -7,6 +7,7 @@
 #include "../algo_matrices.c"
 #include "../include/huffman.h"
 #include "../include/jpeg_writer.h"
+#include <stdbool.h>
 
 void ecrire_codage_differenciel_DC(struct bitstream *stream, int16_t nombre, enum color_component cc);
 void ecrire_codage_huffman(struct bitstream *stream, uint32_t nombre, enum sample_type acdc, enum color_component cc);
@@ -100,19 +101,52 @@ void ecrire_codage_AC_avec_RLE(struct bitstream *stream, int16_t *tab, enum colo
 
 
 
-struct bitstream *ecrire_entete_gris(struct jpeg_desc *jdesc, const char *jpeg_filename, uint32_t image_height, uint32_t image_width) {
-  jpeg_desc_set_ppm_filename(jdesc, "chabanas.ppm");
+struct bitstream *ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filename, const char *jpeg_filename, uint32_t image_height, uint32_t image_width, bool couleur) {
+  jpeg_desc_set_ppm_filename(jdesc, ppm_filename);
   jpeg_desc_set_jpeg_filename(jdesc, jpeg_filename);
   jpeg_desc_set_image_width(jdesc, image_width);
   jpeg_desc_set_image_height(jdesc, image_height);
-  jpeg_desc_set_nb_components(jdesc, 1);
-  jpeg_desc_set_sampling_factor(jdesc, Y, H, 1);
-  jpeg_desc_set_sampling_factor(jdesc, Y, V, 1);
-  struct huff_table *htable1 = huffman_table_build(htables_nb_symb_per_lengths[DC][Y], htables_symbols[DC][Y], htables_nb_symbols[DC][Y]);
-  jpeg_desc_set_huffman_table(jdesc, DC, Y, htable1);
-  struct huff_table *htable2 = huffman_table_build(htables_nb_symb_per_lengths[AC][Y], htables_symbols[AC][Y], htables_nb_symbols[AC][Y]);
-  jpeg_desc_set_huffman_table(jdesc, AC, Y, htable2);
-  jpeg_desc_set_quantization_table(jdesc, Y, compressed_Y_table);
+  if (couleur) {
+    jpeg_desc_set_nb_components(jdesc, 3);
+    jpeg_desc_set_sampling_factor(jdesc, Y, H, 1);
+    jpeg_desc_set_sampling_factor(jdesc, Y, V, 1);
+    jpeg_desc_set_sampling_factor(jdesc, Cr, H, 1);
+    jpeg_desc_set_sampling_factor(jdesc, Cr, V, 1);
+    jpeg_desc_set_sampling_factor(jdesc, Cb, H, 1);
+    jpeg_desc_set_sampling_factor(jdesc, Cb, V, 1);
+
+    struct huff_table *htable1 = huffman_table_build(htables_nb_symb_per_lengths[DC][Y], htables_symbols[DC][Y], htables_nb_symbols[DC][Y]);
+    jpeg_desc_set_huffman_table(jdesc, DC, Y, htable1);
+    struct huff_table *htable2 = huffman_table_build(htables_nb_symb_per_lengths[AC][Y], htables_symbols[AC][Y], htables_nb_symbols[AC][Y]);
+    jpeg_desc_set_huffman_table(jdesc, AC, Y, htable2);
+
+
+    struct huff_table *htable3 = huffman_table_build(htables_nb_symb_per_lengths[DC][Cr], htables_symbols[DC][Cr], htables_nb_symbols[DC][Cr]);
+    jpeg_desc_set_huffman_table(jdesc, DC, Cr, htable3);
+    struct huff_table *htable4 = huffman_table_build(htables_nb_symb_per_lengths[AC][Cr], htables_symbols[AC][Cr], htables_nb_symbols[AC][Cr]);
+    jpeg_desc_set_huffman_table(jdesc, AC, Cr, htable4);
+
+
+    struct huff_table *htable5 = huffman_table_build(htables_nb_symb_per_lengths[DC][Cb], htables_symbols[DC][Cb], htables_nb_symbols[DC][Cb]);
+    jpeg_desc_set_huffman_table(jdesc, DC, Cb, htable5);
+    struct huff_table *htable6 = huffman_table_build(htables_nb_symb_per_lengths[AC][Cb], htables_symbols[AC][Cb], htables_nb_symbols[AC][Cb]);
+    jpeg_desc_set_huffman_table(jdesc, AC, Cb, htable6);
+
+
+    jpeg_desc_set_quantization_table(jdesc, Cb, compressed_CbCr_table);
+    jpeg_desc_set_quantization_table(jdesc, Cr, compressed_CbCr_table);
+    jpeg_desc_set_quantization_table(jdesc, Y, compressed_Y_table);
+  }
+  else {
+    jpeg_desc_set_nb_components(jdesc, 1);
+    jpeg_desc_set_sampling_factor(jdesc, Y, H, 1);
+    jpeg_desc_set_sampling_factor(jdesc, Y, V, 1);
+    struct huff_table *htable1 = huffman_table_build(htables_nb_symb_per_lengths[DC][Y], htables_symbols[DC][Y], htables_nb_symbols[DC][Y]);
+    jpeg_desc_set_huffman_table(jdesc, DC, Y, htable1);
+    struct huff_table *htable2 = huffman_table_build(htables_nb_symb_per_lengths[AC][Y], htables_symbols[AC][Y], htables_nb_symbols[AC][Y]);
+    jpeg_desc_set_huffman_table(jdesc, AC, Y, htable2);
+    jpeg_desc_set_quantization_table(jdesc, Y, compressed_Y_table);
+  }
   jpeg_write_header(jdesc);
   return jpeg_desc_get_bitstream(jdesc);
 }
@@ -178,7 +212,7 @@ int main() {
 
 
   struct jpeg_desc *jdesc = jpeg_desc_create();
-  struct bitstream *stream = ecrire_entete_gris(jdesc, "bhabanas.jpg", 8, 8);
+  struct bitstream *stream = ecrire_entete(jdesc, "chabanas.ppm", "bachanas.jpg", 8, 8, false);
   // struct bitstream *stream = bitstream_create("chabanas.jpg");
   ecrire_codage_differenciel_DC(stream, zig_matrice[0], Y);
   ecrire_codage_AC_avec_RLE(stream, zig_matrice, Y);
