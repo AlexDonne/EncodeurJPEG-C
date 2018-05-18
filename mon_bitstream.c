@@ -1,5 +1,3 @@
-
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -39,8 +37,15 @@ void bitstream_destroy(struct bitstream *stream) {
 void bitstream_write_nbits(struct bitstream *stream, uint32_t value, uint8_t nbits, bool is_marker) {
         if (nbits + stream->indice > 64) {
           /* on écrit les 32 premiers bits du buffer */
-          uint32_t buffer1 = stream->buffer >> 32;
-          fwrite(&buffer1, sizeof(uint32_t), 1, stream->fichier);
+          uint8_t premier_octet;
+          premier_octet = stream->buffer >> 56;
+          fwrite(&premier_octet, sizeof(uint8_t), 1, stream->fichier);
+          premier_octet = stream->buffer >> 48;
+          fwrite(&premier_octet, sizeof(uint8_t), 1, stream->fichier);
+          premier_octet = stream->buffer >> 40;
+          fwrite(&premier_octet, sizeof(uint8_t), 1, stream->fichier);
+          premier_octet = stream->buffer >> 32;
+          fwrite(&premier_octet, sizeof(uint8_t), 1, stream->fichier);
           /* on met à jour le buffer */
           stream->buffer = stream->buffer << 32;
           stream->indice -= 32;
@@ -57,43 +62,33 @@ void bitstream_write_nbits(struct bitstream *stream, uint32_t value, uint8_t nbi
     existe.
 */
 void bitstream_flush(struct bitstream *stream) {
-        /* on recherche le plus petit multiple de 8 supérieur ou égal à stream->indice */
-        uint8_t multiple = 8;
-        while (stream->indice > multiple) {
-          multiple += 8;
+        uint8_t premier_octet;
+        int16_t indice = stream->indice;
+        while (indice > 0) {
+          premier_octet = stream->buffer >> 56;
+          fwrite(&premier_octet, sizeof(uint8_t), 1, stream->fichier);
+          stream->buffer = stream->buffer << 8;
+          indice -= 8;
         }
-        /* on écrit les multiple premiers bits du buffer */
-        uint64_t buffer1 = stream->buffer >> (64 - multiple);
-        printf("%lx\n", buffer1);
-        fwrite(&buffer1, multiple / 8, 1, stream->fichier);
-        /* on met à jour le buffer */
         stream->buffer = 0;
         stream->indice = 0;
 };
 
-/*
+
 int main() {
   struct bitstream *stream = bitstream_create("test_de_mon_bitstream.ppm");
-  // bitstream_write_nbits(stream, 7, 3, false);
-  // bitstream_write_nbits(stream, 0, 1, false);
-  // bitstream_write_nbits(stream, 1, 1, false);
-  // bitstream_write_nbits(stream, 7, 3, false);
-  // bitstream_write_nbits(stream, 0, 1, false);
-  // bitstream_write_nbits(stream, 1, 1, false);
-  // bitstream_flush(stream);
-  // bitstream_write_nbits(stream, 7, 3, false);
-  // bitstream_write_nbits(stream, 0, 1, false);
-  // bitstream_write_nbits(stream, 1, 1, false);
-  // bitstream_write_nbits(stream, 7, 3, false);
-  // bitstream_write_nbits(stream, 0, 1, false);
-  // bitstream_write_nbits(stream, 1, 1, false);
-  // bitstream_flush(stream);
-  uint32_t buffer = 0x7fff8000;
-  bitstream_write_nbits(stream, buffer, 32, false);
-  // bitstream_write_nbits(stream, 0x00c0, 16, false);
-  // bitstream_write_nbits(stream, 0x00c0, 32, false);
+  // On veut écrire la suite de bits suivante : 1110-1111-0111-0011-011
+  bitstream_write_nbits(stream, 7, 3, false);
+  bitstream_write_nbits(stream, 0, 1, false);
+  bitstream_write_nbits(stream, 1, 1, false);
+  bitstream_write_nbits(stream, 7, 3, false);
+  bitstream_write_nbits(stream, 0, 1, false);
+  bitstream_write_nbits(stream, 1, 1, false);
+  bitstream_write_nbits(stream, 12, 4, false);
+  bitstream_write_nbits(stream, 13, 4, false);
+  bitstream_write_nbits(stream, 333333, 1, false);
+  bitstream_write_nbits(stream, 1, 31, false);
   bitstream_flush(stream);
   bitstream_destroy(stream);
   return EXIT_SUCCESS;
 }
-*/
