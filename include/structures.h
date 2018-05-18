@@ -27,20 +27,29 @@ typedef struct imagePPM{
 }ImagePPM;
 
 
-typedef struct mcupixelsRGB{
-    PixelRGB blocsRGB[64];
-}MCUPixelsRGB;
+typedef struct mcupixel{
+    PixelRGB *blocsRGB;
+    PixelNB  *blocsNB;
+}MCUPixels;
 
-typedef struct mcupixelsNB{
-    PixelNB blocsNB[64];
-}MCUPixelsNB;
+typedef struct mcusMatrice{
+    MCUPixels *mcus;
+    int nbcol;
+    int nblignes;
+}MCUsMatrice;
 
 typedef struct mcuTransform{
     int16_t **Y;
     int tailleY;
-    int16_t Cb[64];
-    int16_t Cr[64];
+    int16_t *Cb;
+    int16_t *Cr;
 
 }MCUTransform;
+
+typedef struct mcusTransformMat{
+    int nbcol;
+    int nblignes;
+    MCUTransform* mcus;
+}MCUsTransformMat;
 
 #endif //ETU_STRUCTURES_H

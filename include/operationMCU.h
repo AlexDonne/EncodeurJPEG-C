@@ -11,9 +11,9 @@
 
 
 
-MCUTransform rgbTOycbcr(MCUPixelsRGB mcuPixels);
+MCUTransform rgbTOycbcr(MCUPixels mcuPixels);
 
-MCUTransform* rgbTOycbcrAllMcus(MCUPixelsRGB* mcus, int taille);
+MCUsTransformMat* rgbTOycbcrAllMcus(MCUsMatrice *mcusMat);
 /**
  * Applique le zigzag sur un MCU
  * @param mcu
@@ -21,7 +21,7 @@ MCUTransform* rgbTOycbcrAllMcus(MCUPixelsRGB* mcus, int taille);
  */
 void MCUzigzag(MCUTransform *mcu, MCUTransform *zig_mcu);
 
-
+void libererMCUsMatrice(MCUsMatrice* mcusMat);
 
 
 

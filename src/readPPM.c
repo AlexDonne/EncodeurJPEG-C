@@ -13,6 +13,10 @@ ImagePPM* creerImagePPM(char *chemin){
 
 void lireFichierPPM(ImagePPM *image){
     FILE* fichier = fopen(image->chemin, "rb");
+    if (fichier == NULL){
+        printf("Erreur ouverture fichier");
+        exit(1);
+    }
     fgetc(fichier);
     char magic_number = fgetc(fichier);
 
@@ -24,9 +28,12 @@ void lireFichierPPM(ImagePPM *image){
         while ((a=fgetc(fichier)) != '\n'){
             continue;
         }
+        a = fgetc(fichier);
     }
-    while ((a = fgetc(fichier)) != ' ') {
+
+    while (a  != ' ') {
         nb_col = 10*nb_col + (a - '0');
+        a = fgetc(fichier);
     }
 
     uint32_t nb_ligne = 0;
