@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     }
     ImagePPM *image = creerImagePPM(argv[1]);
     MCUsMatrice *mat = imageToMCUs(image);
-    //MCUsTransformMat *mcusTransform = rgbTOycbcrAllMcus(mat);
-    //MCUsTransformToQuantif(mcusTransform);
-    //ecrire_jpeg(image, mcusTransform);
+    MCUsTransformMat *mcusTransform = rgbTOycbcrAllMcus(mat);
+    MCUsTransformToQuantif(mcusTransform);
+    ecrire_jpeg(image, mcusTransform);
 }
