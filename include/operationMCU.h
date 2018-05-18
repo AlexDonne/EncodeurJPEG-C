@@ -19,10 +19,18 @@ MCUsTransformMat* rgbTOycbcrAllMcus(MCUsMatrice *mcusMat);
  * @param mcu
  * @param zig_mcu
  */
-void MCUzigzag(MCUTransform *mcu, MCUTransform *zig_mcu);
 
 void libererMCUsMatrice(MCUsMatrice* mcusMat);
 
+void MCUsTransformToQuantif(MCUsTransformMat *mcUsTransformMat);
+
+void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu);
+
+void MCUToQuantifNB(MCUTransform *mcu, MCUTransform *dct_mcu);
+
+void afficherAllMCUs(MCUsTransformMat *mcusTransformMat);
+
+void afficher_mcu(MCUTransform mcu);
 
 
 #endif //ENCODEURJPEG_C_OPERATIONMCU_H

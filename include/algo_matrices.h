@@ -7,8 +7,9 @@
 
 void zigzag(int16_t *matrice, int16_t *zig_matrice);
 
-void discrete_cosinus_transform(uint8_t *matrice, int16_t *dct_matrice);
+void discrete_cosinus_transform(int16_t *matrice, int16_t *dct_matrice);
 
 void quantificationY(int16_t *matrice);
 
+void quantificationCbCr(int16_t *matrice);
 #endif

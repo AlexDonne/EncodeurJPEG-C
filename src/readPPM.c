@@ -3,7 +3,11 @@
 #include "../include/readPPM.h"
 #include<stdint.h>
 
-
+/**
+ * Retourne une structure ImagePPM comprenant toutes les informations sur l'image
+ * @param chemin
+ * @return
+ */
 ImagePPM* creerImagePPM(char *chemin){
     ImagePPM* image = malloc(sizeof(struct imagePPM));
     image->chemin = chemin;
@@ -11,6 +15,10 @@ ImagePPM* creerImagePPM(char *chemin){
     return image;
 }
 
+/**
+ * Lit le fichier PPM ou PGM en binaire et remplit la structure ImagePPM
+ * @param image
+ */
 void lireFichierPPM(ImagePPM *image){
     FILE* fichier = fopen(image->chemin, "rb");
     if (fichier == NULL){
@@ -62,7 +70,11 @@ void lireFichierPPM(ImagePPM *image){
     fclose(fichier);
 }
 
-
+/**
+ * Lit le fichier pgm (un pixel a une seula valeur)
+ * @param image
+ * @param fichier
+ */
 void lireNoirEtBlanc(ImagePPM* image, FILE* fichier){
     for (int i=0; i < image->hauteur; i++){
         image->pixelsNB[i] = malloc(image->largeur * sizeof(PixelNB));
@@ -74,6 +86,11 @@ void lireNoirEtBlanc(ImagePPM* image, FILE* fichier){
     }
 }
 
+/**
+ * Lit le fichier ppm (un pixel a 3 valeurs)
+ * @param image
+ * @param fichier
+ */
 void lireCouleurs(ImagePPM* image, FILE* fichier){
     for (int i=0; i < image->hauteur; i++){
         image->pixelsRGB[i] = malloc(image->largeur * sizeof(PixelRGB));
@@ -87,6 +104,10 @@ void lireCouleurs(ImagePPM* image, FILE* fichier){
     }
 }
 
+/**
+ * Affiche en hexa l'image (que couleur)
+ * @param image
+ */
 void afficheImageCouleur(ImagePPM* image){
     for (int i=0; i<image->hauteur; i++){
         for(int j=0; j<image->largeur; j++){
