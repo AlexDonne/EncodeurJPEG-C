@@ -8,22 +8,21 @@
  * @param image
  * @return
  */
-MCUsMatrice* imageToMCUs(ImagePPM *image) {
+MCUsMatrice *imageToMCUs(ImagePPM *image) {
 
     if (image->largeur % 8 != 0 || image->hauteur % 8 != 0) {
-        //Fonction qui règle problème
-        exit(1);
+        adaptationMCU(image);
     }
     MCUsMatrice *matMCUs = malloc(sizeof(MCUsMatrice));
-    matMCUs->nbcol = image->largeur/8;
-    matMCUs->nblignes = image->hauteur/8;
+    matMCUs->nbcol = image->largeur / 8;
+    matMCUs->nblignes = image->hauteur / 8;
     int taille = matMCUs->nbcol * matMCUs->nblignes;
     matMCUs->mcus = malloc(taille * sizeof(MCUPixels));
     int debcolbase = 0;
     int deblignebase = 0;
     int finligne = 8;
     int fincol = 8;
-    for (int indTab = 0; indTab < taille; indTab++){
+    for (int indTab = 0; indTab < taille; indTab++) {
         MCUPixels mcu;
         if (image->type == RGB) {
             mcu.blocsRGB = malloc(64 * sizeof(PixelRGB));
@@ -33,8 +32,7 @@ MCUsMatrice* imageToMCUs(ImagePPM *image) {
                     mcu.blocsRGB[i * 8 + j] = image->pixelsRGB[debligne][debcol];
                 }
             }
-        }
-        else {
+        } else {
             mcu.blocsNB = malloc(64 * sizeof(PixelNB));
             mcu.blocsRGB = NULL;
             for (int i = 0, debligne = deblignebase; debligne < finligne; debligne++, i++) {
@@ -43,42 +41,104 @@ MCUsMatrice* imageToMCUs(ImagePPM *image) {
                 }
             }
         }
-        if (fincol == image->largeur){
+        if (fincol == image->largeur) {
             finligne += 8;
             deblignebase += 8;
             fincol = 8;
             debcolbase = 0;
-        }
-        else{
+        } else {
             fincol += 8;
             debcolbase += 8;
         }
         matMCUs->mcus[indTab] = mcu;
     }
 
-    afficherMCUs(matMCUs);
+    //afficherMCUs(matMCUs);
     libererImage(image);
 
     return matMCUs;
 }
 
 /**
+ * Duplique les dernières lignes ou/et dernières colonnes pour avoir une hauteur et une largeur multiple de 8
+ * @param image
+ */
+void adaptationMCU(ImagePPM *image) {
+    int nouvLargeur = image->largeur;
+    int nouvHauteur = image->hauteur;
+    while (nouvLargeur % 8 != 0) {
+        nouvLargeur++;
+    }
+    while (nouvHauteur % 8 != 0) {
+        nouvHauteur++;
+    }
+    if (image->type == RGB) {
+        PixelRGB **nouvPixels = malloc(nouvHauteur * sizeof(PixelRGB *));
+        for (int i = 0; i < nouvHauteur; ++i) {
+            nouvPixels[i] = malloc(nouvLargeur * sizeof(PixelRGB));
+            for (int j = 0; j < nouvLargeur; ++j) {
+                if (i < image->hauteur && j < image->largeur) {
+                    nouvPixels[i][j] = image->pixelsRGB[i][j];
+                } else if (i < image->hauteur && j >= image->largeur) {
+                    nouvPixels[i][j] = image->pixelsRGB[i][image->largeur - 1];
+                } else if (i >= image->hauteur && j < image->largeur) {
+                    nouvPixels[i][j] = image->pixelsRGB[image->hauteur - 1][j];
+                } else {
+                    nouvPixels[i][j] = image->pixelsRGB[image->hauteur - 1][image->largeur - 1];
+                }
+            }
+        }
+        libererPixelsRGB(image->pixelsRGB, image->hauteur);
+        image->pixelsRGB = nouvPixels;
+    } else {
+        PixelNB **nouvPixels = malloc(nouvHauteur * sizeof(PixelNB *));
+        for (int i = 0; i < nouvHauteur; ++i) {
+            nouvPixels[i] = malloc(nouvLargeur * sizeof(PixelNB));
+            for (int j = 0; j < nouvLargeur; ++j) {
+                if (i < image->hauteur && j < image->largeur) {
+                    nouvPixels[i][j] = image->pixelsNB[i][j];
+                } else if (i < image->hauteur && j >= image->largeur) {
+                    nouvPixels[i][j] = image->pixelsNB[i][image->largeur - 1];
+                } else if (i >= image->hauteur && j < image->largeur) {
+                    nouvPixels[i][j] = image->pixelsNB[image->hauteur - 1][j];
+                } else {
+                    nouvPixels[i][j] = image->pixelsNB[image->hauteur - 1][image->largeur - 1];
+                }
+            }
+        }
+        libererPixelsNB(image->pixelsNB, image->hauteur);
+        image->pixelsNB = nouvPixels;
+    }
+    image->hauteur = nouvHauteur;
+    image->largeur = nouvLargeur;
+}
+
+
+void libererPixelsRGB (PixelRGB** pixels, int hauteur){
+    for (int i = 0; i < hauteur; i++) {
+        free(pixels[i]);
+    }
+    free(pixels);
+}
+
+void libererPixelsNB (PixelNB** pixels, int hauteur){
+    for (int i = 0; i < hauteur; i++) {
+        free(pixels[i]);
+    }
+    free(pixels);
+}
+
+/**
  * Libère l'espace mémoire d'une ImagePPM
  * @param image
  */
-void libererImage(ImagePPM *image){
-    if (image->type == RGB){
-        for (int i=0; i<image->hauteur; i++){
-            free(image->pixelsRGB[i]);
-        }
-        free(image->pixelsRGB);
+void libererImage(ImagePPM *image) {
+    if (image->type == RGB) {
+        libererPixelsRGB(image->pixelsRGB, image->hauteur);
+    } else {
+        libererPixelsNB(image->pixelsNB, image->hauteur);
     }
-    else{
-        for (int i=0; i<image->hauteur; i++){
-            free(image->pixelsNB[i]);
-        }
-        free(image->pixelsNB);
-    }
+    free(image);
 }
 
 /**
@@ -87,15 +147,14 @@ void libererImage(ImagePPM *image){
  */
 void afficherMCUs(MCUsMatrice *tabMcus) {
     if (tabMcus->mcus[0].blocsRGB != NULL) {
-        for (int i = 0; i < tabMcus->nbcol*tabMcus->nblignes; i++) {
+        for (int i = 0; i < tabMcus->nbcol * tabMcus->nblignes; i++) {
             printf("MCU #%d\n", i);
             afficherMCURGB(tabMcus->mcus[i]);
             printf("\n\n");
 
         }
-    }
-    else {
-        for (int i = 0; i < tabMcus->nbcol*tabMcus->nblignes; i++) {
+    } else {
+        for (int i = 0; i < tabMcus->nbcol * tabMcus->nblignes; i++) {
             printf("MCU #%d\n", i);
             afficherMCUNB(tabMcus->mcus[i]);
             printf("\n\n");
@@ -110,11 +169,11 @@ void afficherMCUs(MCUsMatrice *tabMcus) {
  */
 void afficherMCURGB(MCUPixels mcu) {
     for (int i = 0; i < 64; i++) {
-        if (i%8 == 0){
+        if (i % 8 == 0) {
             printf("\n");
         }
-            printf("%02hhx%02hhx%02hhx  ", mcu.blocsRGB[i].rouge, mcu.blocsRGB[i].vert,mcu.blocsRGB[i].bleu);
-        }
+        printf("%02hhx%02hhx%02hhx  ", mcu.blocsRGB[i].rouge, mcu.blocsRGB[i].vert, mcu.blocsRGB[i].bleu);
+    }
 }
 
 /**
@@ -123,7 +182,7 @@ void afficherMCURGB(MCUPixels mcu) {
  */
 void afficherMCUNB(MCUPixels mcu) {
     for (int i = 0; i < 64; i++) {
-        if (i%8 == 0){
+        if (i % 8 == 0) {
             printf("\n");
         }
         printf("%02hhx ", mcu.blocsNB[i]);

@@ -2,18 +2,14 @@
 #define ETU_IMAGETOMCUS_H
 
 #include "structures.h"
-/**
- * Créer le tableau de MCU pour l'image donnée (en couleur)
- * @param image
- * @return
- */
+
 MCUsMatrice* imageToMCUs(ImagePPM *image);
 
-/**
- * Créer le tableau de MCU pour l'image donnée (en noir et blanc)
- * @param image
- * @return
- */
+void adaptationMCU(ImagePPM* image);
+
+void libererPixelsRGB (PixelRGB** pixels, int hauteur);
+
+void libererPixelsNB (PixelNB** pixels, int hauteur);
 
 void libererImage(ImagePPM *image);
 

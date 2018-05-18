@@ -56,7 +56,7 @@ MCUsTransformMat *rgbTOycbcrAllMcus(MCUsMatrice *mcusMat) {
     MCUsTransformMat *mcusTransform = malloc(sizeof(MCUsTransformMat));
     mcusTransform->mcus = malloc(taille * sizeof(MCUTransform));
     mcusTransform->nblignes = mcusMat->nblignes;
-    mcusTransform->nbcol = mcusMat->nblignes;
+    mcusTransform->nbcol = mcusMat->nbcol;
     if (mcusMat->mcus[0].blocsRGB == NULL) {
         for (int i = 0; i < taille; ++i) {
             mcusTransform->mcus[i] = nbTOy(mcusMat->mcus[i]);
@@ -191,5 +191,4 @@ void afficher_mcu(MCUTransform mcu) {
         printf("\n");
     }
     printf("\n");
-
 }
