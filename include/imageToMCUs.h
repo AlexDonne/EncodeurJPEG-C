@@ -7,6 +7,8 @@ MCUsMatrice* imageToMCUs(ImagePPM *image);
 
 void adaptationMCU(ImagePPM* image, int *nouvHauteur, int *nouvLargeur);
 
+void libererPixels(ImagePPM* image);
+
 void libererPixelsRGB (PixelRGB** pixels, int hauteur);
 
 void afficheImageNB(ImagePPM* image, int hauteur, int largeur);

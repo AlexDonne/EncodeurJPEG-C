@@ -121,7 +121,7 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
             mcusTransformMat->mcus[i] = final;
         }
     }
-    afficherAllMCUs(mcusTransformMat);
+    //afficherAllMCUs(mcusTransformMat);
 }
 
 /**

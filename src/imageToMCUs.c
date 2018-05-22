@@ -52,8 +52,8 @@ MCUsMatrice *imageToMCUs(ImagePPM *image) {
         }
         matMCUs->mcus[indTab] = mcu;
     }
-    afficherMCUs(matMCUs);
-
+    //afficherMCUs(matMCUs);
+    libererPixels(image);
     return matMCUs;
 }
 
@@ -115,6 +115,14 @@ void afficheImageNB(ImagePPM* image, int hauteur, int largeur){
         printf("\n");
     }
     printf("\n\n");
+}
+
+void libererPixels(ImagePPM* image){
+    if (image->type == RGB) {
+        libererPixelsRGB(image->pixelsRGB, image->hauteur);
+    } else {
+        libererPixelsNB(image->pixelsNB, image->hauteur);
+    }
 }
 
 void libererPixelsRGB (PixelRGB** pixels, int hauteur){

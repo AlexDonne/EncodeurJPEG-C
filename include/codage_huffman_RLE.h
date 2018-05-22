@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include <stdbool.h>
 #include "htables.h"
 #include "qtables.h"
 #include "huffman.h"
@@ -18,7 +19,7 @@ void magnitude_indice(int16_t nombre, uint8_t *magnitude, uint16_t *indice);
 
 void ecrire_codage_AC_avec_RLE(struct bitstream *stream, int16_t *tab, enum color_component cc, int num);
 
-struct bitstream *ecrire_entete_gris(struct jpeg_desc *jdesc, const char *jpeg_filename, uint32_t image_height, uint32_t image_width);
+struct bitstream *ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filename, const char *jpeg_filename, uint32_t image_height, uint32_t image_width, bool couleur);
 
 void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform);
 

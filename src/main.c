@@ -14,5 +14,5 @@ int main(int argc, char *argv[]) {
     MCUsMatrice *mat = imageToMCUs(image);
     MCUsTransformMat *mcusTransform = rgbTOycbcrAllMcus(mat);
     MCUsTransformToQuantif(mcusTransform);
-    ecrire_jpeg(image, mcusTransform);
+    //ecrire_jpeg(image, mcusTransform);
 }
