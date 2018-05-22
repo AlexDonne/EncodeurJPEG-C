@@ -42,6 +42,7 @@ void discrete_cosinus_transform(int16_t *matrice, int16_t *dct_matrice) {
     float somme;
     float n = 8;
     float c_i;
+
     float c_j;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {

@@ -21,8 +21,8 @@ typedef uint8_t PixelNB;
  */
 typedef struct imagePPM{
     TYPE_IMAGE type;
-    char* nom;
     char* chemin;
+    char* nom;
     int hauteur;
     int largeur;
     PixelRGB **pixelsRGB;

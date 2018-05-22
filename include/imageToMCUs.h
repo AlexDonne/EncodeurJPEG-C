@@ -2,12 +2,12 @@
 #define ETU_IMAGETOMCUS_H
 
 #include "structures.h"
-
+#include "test_malloc.h"
 MCUsMatrice* imageToMCUs(ImagePPM *image);
 
 void adaptationMCU(ImagePPM* image, int *nouvHauteur, int *nouvLargeur);
 
-void libererPixels(ImagePPM* image);
+void libererPixels(ImagePPM* image, int hauteur);
 
 void libererPixelsRGB (PixelRGB** pixels, int hauteur);
 

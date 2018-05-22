@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include "structures.h"
 #include "algo_matrices.h"
-
+#include "test_malloc.h"
 
 
 MCUTransform rgbTOycbcr(MCUPixels mcuPixels);
@@ -27,6 +27,8 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcUsTransformMat);
 void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *final);
 
 void MCUToQuantifNB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *final);
+
+void libererIntermediaire (MCUTransform *intermediaire);
 
 void afficherAllMCUs(MCUsTransformMat *mcusTransformMat);
 

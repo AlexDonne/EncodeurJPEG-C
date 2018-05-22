@@ -14,10 +14,12 @@ MCUsMatrice *imageToMCUs(ImagePPM *image) {
         adaptationMCU(image, &nouvHauteur, &nouvLargeur);
     }
     MCUsMatrice *matMCUs = malloc(sizeof(MCUsMatrice));
+    test_malloc(matMCUs);
     matMCUs->nbcol = nouvLargeur / 8;
     matMCUs->nblignes = nouvHauteur/ 8;
     int taille = matMCUs->nbcol * matMCUs->nblignes;
     matMCUs->mcus = malloc(taille * sizeof(MCUPixels));
+    test_malloc(matMCUs->mcus);
     int debcolbase = 0;
     int deblignebase = 0;
     int finligne = 8;
@@ -26,6 +28,7 @@ MCUsMatrice *imageToMCUs(ImagePPM *image) {
         MCUPixels mcu;
         if (image->type == RGB) {
             mcu.blocsRGB = malloc(64 * sizeof(PixelRGB));
+            test_malloc(mcu.blocsRGB);
             mcu.blocsNB = NULL;
             for (int i = 0, debligne = deblignebase; debligne < finligne; debligne++, i++) {
                 for (int j = 0, debcol = debcolbase; debcol < fincol; debcol++, j++) {
@@ -34,6 +37,7 @@ MCUsMatrice *imageToMCUs(ImagePPM *image) {
             }
         } else {
             mcu.blocsNB = malloc(64 * sizeof(PixelNB));
+            test_malloc(mcu.blocsNB);
             mcu.blocsRGB = NULL;
             for (int i = 0, debligne = deblignebase; debligne < finligne; debligne++, i++) {
                 for (int j = 0, debcol = debcolbase; debcol < fincol; debcol++, j++) {
@@ -53,7 +57,7 @@ MCUsMatrice *imageToMCUs(ImagePPM *image) {
         matMCUs->mcus[indTab] = mcu;
     }
     //afficherMCUs(matMCUs);
-    libererPixels(image);
+    libererPixels(image, nouvHauteur);
     return matMCUs;
 }
 
@@ -70,8 +74,10 @@ void adaptationMCU(ImagePPM *image, int *nouvHauteur, int *nouvLargeur) {
     }
     if (image->type == RGB) {
         PixelRGB **nouvPixels = malloc(*nouvHauteur * sizeof(PixelRGB *));
+        test_malloc(nouvPixels);
         for (int i = 0; i < *nouvHauteur; ++i) {
             nouvPixels[i] = malloc(*nouvLargeur * sizeof(PixelRGB));
+            test_malloc(nouvPixels[i]);
             for (int j = 0; j < *nouvLargeur; ++j) {
                 if (i < image->hauteur && j < image->largeur) {
                     nouvPixels[i][j] = image->pixelsRGB[i][j];
@@ -88,8 +94,10 @@ void adaptationMCU(ImagePPM *image, int *nouvHauteur, int *nouvLargeur) {
         image->pixelsRGB = nouvPixels;
     } else {
         PixelNB **nouvPixels = malloc(*nouvHauteur * sizeof(PixelNB *));
+        test_malloc(nouvPixels);
         for (int i = 0; i < *nouvHauteur; ++i) {
             nouvPixels[i] = malloc(*nouvLargeur * sizeof(PixelNB));
+            test_malloc(nouvPixels[i]);
             for (int j = 0; j < *nouvLargeur; ++j) {
                 if (i < image->hauteur && j < image->largeur) {
                     nouvPixels[i][j] = image->pixelsNB[i][j];
@@ -117,11 +125,11 @@ void afficheImageNB(ImagePPM* image, int hauteur, int largeur){
     printf("\n\n");
 }
 
-void libererPixels(ImagePPM* image){
+void libererPixels(ImagePPM* image, int hauteur){
     if (image->type == RGB) {
-        libererPixelsRGB(image->pixelsRGB, image->hauteur);
+        libererPixelsRGB(image->pixelsRGB, hauteur);
     } else {
-        libererPixelsNB(image->pixelsNB, image->hauteur);
+        libererPixelsNB(image->pixelsNB, hauteur);
     }
 }
 

@@ -2,8 +2,11 @@
 #define IMAGE_TO_MCU_H
 
 #include "structures.h"
+#include "test_malloc.h"
 
 ImagePPM* creerImagePPM(char *chemin);
+
+char* nouveauNom (char *chemin);
 
 void lireFichierPPM(ImagePPM *image);
 

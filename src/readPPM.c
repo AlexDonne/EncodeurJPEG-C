@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "../include/readPPM.h"
 #include<stdint.h>
+#include <string.h>
 
 /**
  * Retourne une structure ImagePPM comprenant toutes les informations sur l'image
@@ -10,9 +11,38 @@
  */
 ImagePPM* creerImagePPM(char *chemin){
     ImagePPM* image = malloc(sizeof(struct imagePPM));
+    test_malloc(image);
     image->chemin = chemin;
+    image->nom = nouveauNom(chemin);
     lireFichierPPM(image);
     return image;
+}
+
+
+char*nouveauNom(char *chemin){
+    char lettre;
+    int nblettres = 0;
+    for (int i = strlen(chemin) - 1; i>=0; i--, nblettres++){
+        if ((lettre = chemin[i]) == '/'){
+            break;
+        }
+    }
+    char *nom = malloc(nblettres * sizeof(char));
+    test_malloc(nom);
+    int debut = strlen(chemin) - nblettres;
+    for (unsigned long i = debut, j=0; i < strlen(chemin); ++i, ++j) {
+        nom[j] = chemin[i];
+    }
+    char *final = malloc((nblettres + 9)* sizeof(char));
+    test_malloc(final);
+    strcpy(final, "napoleon-");
+    strcat(final, nom);
+    int longueur = strlen(final);
+    final[longueur - 3] = 'j';
+    final[longueur - 2] = 'p';
+    final[longueur - 1] = 'g';
+    free(nom);
+    return final;
 }
 
 /**
@@ -23,7 +53,7 @@ void lireFichierPPM(ImagePPM *image){
     FILE* fichier = fopen(image->chemin, "rb");
     if (fichier == NULL){
         printf("Erreur ouverture fichier");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     fgetc(fichier);
     char magic_number = fgetc(fichier);
@@ -60,11 +90,13 @@ void lireFichierPPM(ImagePPM *image){
     if (magic_number == '5') {
         image->type = NB;
         image->pixelsNB = malloc(nb_ligne * sizeof(PixelNB*));
+        test_malloc(image->pixelsNB);
         lireNoirEtBlanc(image, fichier);
     }
     else if (magic_number == '6'){
         image->type = RGB;
         image->pixelsRGB = malloc(nb_ligne * sizeof(PixelRGB*));
+        test_malloc(image->pixelsRGB);
         lireCouleurs(image, fichier);
     }
     fclose(fichier);
@@ -78,6 +110,7 @@ void lireFichierPPM(ImagePPM *image){
 void lireNoirEtBlanc(ImagePPM* image, FILE* fichier){
     for (int i=0; i < image->hauteur; i++){
         image->pixelsNB[i] = malloc(image->largeur * sizeof(PixelNB));
+        test_malloc(image->pixelsNB[i]);
         for (int j=0; j< image->largeur; j++){
             PixelNB pixel;
             fread(&pixel, sizeof(pixel),1 ,fichier);
@@ -94,6 +127,7 @@ void lireNoirEtBlanc(ImagePPM* image, FILE* fichier){
 void lireCouleurs(ImagePPM* image, FILE* fichier){
     for (int i=0; i < image->hauteur; i++){
         image->pixelsRGB[i] = malloc(image->largeur * sizeof(PixelRGB));
+        test_malloc(image->pixelsRGB[i]);
         for (int j=0; j< image->largeur; j++){
             PixelRGB pixel;
             fread(&pixel.rouge, sizeof(pixel.rouge),1 ,fichier);

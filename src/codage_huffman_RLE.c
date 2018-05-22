@@ -133,7 +133,7 @@ struct bitstream *ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filenam
 void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform) {
     struct jpeg_desc *jdesc = jpeg_desc_create();
     if (image->type == RGB) {
-        struct bitstream *stream = ecrire_entete(jdesc, "a.ppm", "a.jpg", image->hauteur, image->largeur, true);
+        struct bitstream *stream = ecrire_entete(jdesc, "a.ppm", image->nom, image->hauteur, image->largeur, true);
         for (int i = 0; i < mcusTransform->nbcol * mcusTransform->nblignes; ++i) {
             int16_t dcy, dccr, dccb;
             if (i==0){
@@ -160,7 +160,7 @@ void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform) {
         }
     }
     else {
-        struct bitstream *stream = ecrire_entete(jdesc, "a.ppm", "a.jpg", image->hauteur, image->largeur, false);
+        struct bitstream *stream = ecrire_entete(jdesc, image->nom, image->nom, image->hauteur, image->largeur, false);
         for (int i = 0; i < mcusTransform->nbcol * mcusTransform->nblignes; ++i) {
             int16_t dc;
             if (i==0){
@@ -184,19 +184,25 @@ void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform) {
  * @param image
  */
 void libererImage(ImagePPM *image) {
+    free(image->nom);
     free(image);
 }
 
 void libererMCUsTransform(MCUsTransformMat *mcUsTransform){
     for (int i = 0; i < mcUsTransform->nblignes * mcUsTransform->nbcol; ++i) {
-        libererMCUTransform(mcUsTransform->mcus[i]);
+        libererMCUTransform(&(mcUsTransform->mcus[i]));
     }
     free(mcUsTransform->mcus);
     free(mcUsTransform);
 }
 
-void libererMCUTransform(MCUTransform mcuTransform){
-    for (int i = 0; i < mcuTransform.tailleY; ++i) {
-        free(mcuTransform.Y);
+void libererMCUTransform(MCUTransform *mcuTransform){
+    for (int i = 0; i < mcuTransform->tailleY; ++i) {
+        free(mcuTransform->Y[i]);
+    }
+    free(mcuTransform->Y);
+    if (mcuTransform->Cb != NULL) {
+        free(mcuTransform->Cb);
+        free(mcuTransform->Cr);
     }
 }

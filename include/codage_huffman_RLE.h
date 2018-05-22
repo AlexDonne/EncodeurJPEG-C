@@ -7,6 +7,7 @@
 #include "qtables.h"
 #include "huffman.h"
 #include "structures.h"
+#include "test_malloc.h"
 
 #ifndef ETU_CODAGE_HUFFMAN_RLE_H
 #define ETU_CODAGE_HUFFMAN_RLE_H
@@ -27,6 +28,6 @@ void libererImage(ImagePPM *image);
 
 void libererMCUsTransform(MCUsTransformMat *mcUsTransform);
 
-void libererMCUTransform(MCUTransform mcuTransform);
+void libererMCUTransform(MCUTransform *mcuTransform);
 
 #endif //ETU_CODAGE_HUFFMAN_RLE_H

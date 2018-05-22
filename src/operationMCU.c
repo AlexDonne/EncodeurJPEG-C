@@ -10,10 +10,14 @@
 MCUTransform rgbTOycbcr(MCUPixels mcuPixels) {
     MCUTransform mcuTransform;
     mcuTransform.tailleY = 1;
-    mcuTransform.Y = malloc(1 * sizeof(int16_t));
+    mcuTransform.Y = malloc(sizeof(int16_t));
+    test_malloc(mcuTransform.Y);
     mcuTransform.Y[0] = malloc(64 * sizeof(int16_t));
+    test_malloc(mcuTransform.Y[0]);
     mcuTransform.Cb = malloc(64 * sizeof(int16_t));
+    test_malloc(mcuTransform.Cb);
     mcuTransform.Cr = malloc(64 * sizeof(int16_t));
+    test_malloc(mcuTransform.Cr);
     for (int j = 0; j < 64; ++j) {
         mcuTransform.Y[0][j] = round(0.299 * mcuPixels.blocsRGB[j].rouge
                                      + 0.587 * mcuPixels.blocsRGB[j].vert
@@ -39,8 +43,10 @@ MCUTransform rgbTOycbcr(MCUPixels mcuPixels) {
 MCUTransform nbTOy(MCUPixels mcuPixels) {
     MCUTransform mcuTransform;
     mcuTransform.tailleY = 1;
-    mcuTransform.Y = malloc(1 * sizeof(int16_t));
+    mcuTransform.Y = malloc(sizeof(int16_t));
+    test_malloc(mcuTransform.Y);
     mcuTransform.Y[0] = malloc(64 * sizeof(int16_t));
+    test_malloc(mcuTransform.Y[0]);
     for (int j = 0; j < 64; ++j) {
         mcuTransform.Y[0][j] = (uint16_t) mcuPixels.blocsNB[j];
     }
@@ -55,7 +61,9 @@ MCUTransform nbTOy(MCUPixels mcuPixels) {
 MCUsTransformMat *rgbTOycbcrAllMcus(MCUsMatrice *mcusMat) {
     int taille = mcusMat->nbcol * mcusMat->nblignes;
     MCUsTransformMat *mcusTransform = malloc(sizeof(MCUsTransformMat));
+    test_malloc(mcusTransform);
     mcusTransform->mcus = malloc(taille * sizeof(MCUTransform));
+    test_malloc(mcusTransform->mcus);
     mcusTransform->nblignes = mcusMat->nblignes;
     mcusTransform->nbcol = mcusMat->nbcol;
     if (mcusMat->mcus[0].blocsRGB == NULL) {
@@ -92,33 +100,29 @@ void libererMCUsMatrice(MCUsMatrice *mcusMat) {
 void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
     if (mcusTransformMat->mcus[0].Cb != NULL) {
         for (int i = 0; i < mcusTransformMat->nbcol * mcusTransformMat->nblignes; ++i) {
-            MCUTransform intermediaire;
-            intermediaire.Cb = malloc(64* sizeof(int16_t));
-            intermediaire.Cr = malloc(64* sizeof(int16_t));
-            intermediaire.tailleY = mcusTransformMat->mcus[i].tailleY;
-            intermediaire.Y = malloc(intermediaire.tailleY * sizeof(int16_t));
-            MCUTransform final;
-            final.Cb = malloc(64* sizeof(int16_t));
-            final.Cr = malloc(64* sizeof(int16_t));
-            final.tailleY = mcusTransformMat->mcus[i].tailleY;
-            final.Y = malloc(final.tailleY * sizeof(int16_t));
-            MCUToQuantifRGB(&(mcusTransformMat->mcus[i]), &intermediaire, &final);
-            mcusTransformMat->mcus[i] = final;
+            MCUTransform *intermediaire = malloc(sizeof(MCUTransform));
+            test_malloc(intermediaire);
+            intermediaire->Cb = malloc(64* sizeof(int16_t));
+            test_malloc(intermediaire->Cb);
+            intermediaire->Cr = malloc(64* sizeof(int16_t));
+            test_malloc(intermediaire->Cr);
+            intermediaire->tailleY = mcusTransformMat->mcus[i].tailleY;
+            intermediaire->Y = malloc(intermediaire->tailleY * sizeof(int16_t));
+            test_malloc(intermediaire->Y);
+            MCUToQuantifRGB(&(mcusTransformMat->mcus[i]), intermediaire, &(mcusTransformMat->mcus[i]));
+            libererIntermediaire(intermediaire);
         }
     } else {
         for (int i = 0; i < mcusTransformMat->nbcol * mcusTransformMat->nblignes; ++i) {
-            MCUTransform intermediaire;
-            intermediaire.Cb = NULL;
-            intermediaire.Cr = NULL;
-            intermediaire.tailleY = mcusTransformMat->mcus[i].tailleY;
-            intermediaire.Y = malloc(intermediaire.tailleY * sizeof(int16_t));
-            MCUTransform final;
-            final.Cb = NULL;
-            final.Cr = NULL;
-            final.tailleY = mcusTransformMat->mcus[i].tailleY;
-            final.Y = malloc(final.tailleY * sizeof(int16_t));
-            MCUToQuantifNB(&(mcusTransformMat->mcus[i]), &intermediaire, &final);
-            mcusTransformMat->mcus[i] = final;
+            MCUTransform *intermediaire = malloc(sizeof(MCUTransform));
+            test_malloc(intermediaire);
+            intermediaire->Cb = NULL;
+            intermediaire->Cr = NULL;
+            intermediaire->tailleY = mcusTransformMat->mcus[i].tailleY;
+            intermediaire->Y = malloc(intermediaire->tailleY * sizeof(int16_t));
+            test_malloc(intermediaire->Y);
+            MCUToQuantifNB(&(mcusTransformMat->mcus[i]), intermediaire, &(mcusTransformMat->mcus[i]));
+            libererIntermediaire(intermediaire);
         }
     }
     //afficherAllMCUs(mcusTransformMat);
@@ -131,9 +135,12 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
  */
 void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *final) {
     for (int i = 0; i < mcu->tailleY; ++i) {
-        dct_mcu->Y[i] = malloc(64* sizeof(int16_t));
-        final->Y[i] = malloc(64* sizeof(int16_t));
+        dct_mcu->Y[i] = calloc(64, sizeof(int16_t));
+        test_malloc(dct_mcu->Y[i]);
         discrete_cosinus_transform(mcu->Y[i], dct_mcu->Y[i]);
+        free(final->Y[i]);
+        final->Y[i] = calloc(64, sizeof(int16_t));
+        test_malloc(final->Y[i]);
         zigzag(dct_mcu->Y[i], final->Y[i]);
         quantificationY(final->Y[i]);
     }
@@ -145,6 +152,16 @@ void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *fin
     quantificationCbCr(final->Cr);
 }
 
+void libererIntermediaire (MCUTransform *intermediaire){
+    free(intermediaire->Cb);
+    free(intermediaire->Cr);
+    for (int i = 0; i < intermediaire->tailleY; ++i) {
+        free(intermediaire->Y[i]);
+    }
+    free(intermediaire->Y);
+    free(intermediaire);
+}
+
 /**
  * Applique le DCT, le zigzag et la quantification pour un MCU d'une image noir et blanc
  * @param mcu
@@ -153,8 +170,11 @@ void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *fin
 void MCUToQuantifNB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *final) {
     for (int i = 0; i < mcu->tailleY; ++i) {
         dct_mcu->Y[i] = calloc(64, sizeof(int16_t));
-        final->Y[i] = calloc(64, sizeof(int16_t));
+        test_malloc(dct_mcu->Y[i]);
         discrete_cosinus_transform(mcu->Y[i], dct_mcu->Y[i]);
+        free(final->Y[i]);
+        final->Y[i] = calloc(64, sizeof(int16_t));
+        test_malloc(final->Y[i]);
         zigzag(dct_mcu->Y[i], final->Y[i]);
         quantificationY(final->Y[i]);
     }
