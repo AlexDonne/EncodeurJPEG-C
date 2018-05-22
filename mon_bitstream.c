@@ -67,9 +67,11 @@ void bitstream_write_nbits(struct bitstream *stream, uint32_t value, uint8_t nbi
     existe.
 */
 void bitstream_flush(struct bitstream *stream) {
+  if (stream->indice != 0) {
         fwrite(&(stream->buffer), sizeof(uint8_t), 1, stream->fichier);
         stream->buffer = 0;
         stream->indice = 0;
+  }
 };
 
 
@@ -82,34 +84,3 @@ void bitstream_destroy(struct bitstream *stream) {
   fclose(stream->fichier);
   free(stream);
 };
-
-int main() {
-  struct bitstream *stream = bitstream_create("test_de_mon_bitstream.ppm");
-  // On veut écrire la suite de bits suivante : 1110-1011-0100-0111-1100-0110-00
-  /*
-  bitstream_write_nbits(stream, 15, 3, false); // 111
-  bitstream_write_nbits(stream, 2, 3, false); // 010
-  bitstream_write_nbits(stream, 14, 3, false); // 110
-  bitstream_write_nbits(stream, 1, 1, false); // 1
-  bitstream_write_nbits(stream, 7, 6, false); // 00 0111
-  bitstream_write_nbits(stream, 5, 24, false); // 11000
-  bitstream_write_nbits(stream, 5, 24, false); // 11000
-  */
-  bitstream_write_nbits(stream, 0, 3, false); // 111
-  bitstream_write_nbits(stream, 0, 3, false); // 111
-  bitstream_write_nbits(stream, 15, 3, false); // 111
-  bitstream_write_nbits(stream, 15, 3, false); // 111
-  bitstream_write_nbits(stream, 15, 3, false); // 111
-  bitstream_write_nbits(stream, 15, 3, false); // 111
-  bitstream_write_nbits(stream, 15, 3, false); // 111
-  bitstream_write_nbits(stream, 15, 3, false); // 111
-  bitstream_write_nbits(stream, 15, 3, false); // 111
-  bitstream_write_nbits(stream, 0, 3, false); // 111
-  bitstream_write_nbits(stream, 0, 3, false); // 111
-  bitstream_write_nbits(stream, 0, 3, false); // 111
-  bitstream_write_nbits(stream, 0, 3, false); // 111
-  bitstream_write_nbits(stream, 0, 3, false); // 111
-  bitstream_write_nbits(stream, 1, 31, false); // 111
-  bitstream_destroy(stream);
-  return EXIT_SUCCESS;
-}
