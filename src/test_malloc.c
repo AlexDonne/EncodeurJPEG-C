@@ -7,4 +7,3 @@ void test_malloc(void* ptr){
         exit(EXIT_FAILURE);
     }
 }
-

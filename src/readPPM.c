@@ -33,15 +33,20 @@ char*nouveauNom(char *chemin){
     for (unsigned long i = debut, j=0; i < strlen(chemin); ++i, ++j) {
         nom[j] = chemin[i];
     }
-    char *final = malloc((nblettres + 9)* sizeof(char));
-    test_malloc(final);
-    strcpy(final, "napoleon-");
-    strcat(final, nom);
-    int longueur = strlen(final);
-    final[longueur - 3] = 'j';
-    final[longueur - 2] = 'p';
-    final[longueur - 1] = 'g';
+    char *inter = malloc((nblettres + 9)* sizeof(char));
+    test_malloc(inter);
+    strcpy(inter, "napoleon-");
+    strcat(inter, nom);
+    int longueur = strlen(inter);
+    inter[longueur - 3] = 'j';
+    inter[longueur - 2] = 'p';
+    inter[longueur - 1] = 'g';
     free(nom);
+    char *final = malloc((strlen(inter) + 7)* sizeof(char));
+    test_malloc(final);
+    strcpy(final, "images/");
+    strcat(final, inter);
+    free(inter);
     return final;
 }
 

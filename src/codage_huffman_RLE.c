@@ -133,7 +133,7 @@ struct bitstream *ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filenam
 void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform) {
     struct jpeg_desc *jdesc = jpeg_desc_create();
     if (image->type == RGB) {
-        struct bitstream *stream = ecrire_entete(jdesc, "a.ppm", image->nom, image->hauteur, image->largeur, true);
+        struct bitstream *stream = ecrire_entete(jdesc, image->chemin, image->nom, image->hauteur, image->largeur, true);
         for (int i = 0; i < mcusTransform->nbcol * mcusTransform->nblignes; ++i) {
             int16_t dcy, dccr, dccb;
             if (i==0){
