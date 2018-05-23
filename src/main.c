@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     MCUsMatrice *mat = imageToMCUs(image);
     MCUsTransformMat *mcusTransform = rgbTOycbcrAllMcus(mat);
     MCUsTransformMat *nouv = malloc(sizeof(MCUsTransformMat));
-    echantillonnage(mcusTransform, nouv, 2, 2, 2, 1);
+    echantillonnage(mcusTransform, nouv, 2, 2, 1, 1, 1, 1);
    afficherAllMCUs2(nouv);
 //    MCUsTransformToQuantif(mcusTransform);
 //    ecrire_jpeg(image, mcusTransform);

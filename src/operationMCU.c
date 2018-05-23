@@ -10,7 +10,8 @@
 MCUTransform rgbTOycbcr(MCUPixels mcuPixels) {
     MCUTransform mcuTransform;
     mcuTransform.tailleY = 1;
-    mcuTransform.tailleC = 1;
+    mcuTransform.tailleCb = 1;
+    mcuTransform.tailleCr = 1;
     mcuTransform.Y = malloc(sizeof(int16_t));
     mcuTransform.Cb = malloc(sizeof(int16_t));
     mcuTransform.Cr = malloc(sizeof(int16_t));
@@ -96,7 +97,8 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
     if (mcusTransformMat->mcus[0].Cb != NULL) {
         for (int i = 0; i < mcusTransformMat->nbcol * mcusTransformMat->nblignes; ++i) {
             MCUTransform intermediaire;
-            intermediaire.tailleC = 0;
+            intermediaire.tailleCb = 0;
+            intermediaire.tailleCr = 0;
             intermediaire.Cb = malloc(sizeof(int16_t));
             intermediaire.Cr = malloc(sizeof(int16_t));
             intermediaire.Cb[0] = malloc(64* sizeof(int16_t));

@@ -17,7 +17,8 @@ MCUsTransformMat *fusion_mcu(MCUsTransformMat *matmcu, int h1, int l1) {
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Y = malloc(2 * sizeof(int16_t));
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cb = malloc(2 * sizeof(int16_t));
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cr = malloc(2 * sizeof(int16_t));
-                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleC = 2;
+                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleCb = 2;
+                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleCr = 2;
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleY = 2;
                     for (int k = 0; k < 2; ++k) {
                         fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Y[k] = malloc(64 * sizeof(int16_t));
@@ -46,7 +47,8 @@ MCUsTransformMat *fusion_mcu(MCUsTransformMat *matmcu, int h1, int l1) {
                 for (int j = 0; j < fusionmatmcu->nbcol; ++j) {
                     //fusion des blocs 8x8 pour avoir un mcu de taille 2x1;
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleY = 2;
-                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleC = 2;
+                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleCb = 2;
+                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleCr = 2;
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Y = malloc(2 * sizeof(int16_t));
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cb = malloc(2 * sizeof(int16_t));
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cr = malloc(2 * sizeof(int16_t));
@@ -83,7 +85,8 @@ MCUsTransformMat *fusion_mcu(MCUsTransformMat *matmcu, int h1, int l1) {
                 for (int j = 0; j < fusionmatmcu->nbcol; ++j) {
                     //fusion des blocs 8x8 pour avoir un mcu de taille 2x2;
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleY = 4;
-                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleC = 4;
+                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleCb = 4;
+                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleCr = 4;
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Y = malloc(4 * sizeof(int16_t));
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cb = malloc(4 * sizeof(int16_t));
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cr = malloc(4 * sizeof(int16_t));
@@ -171,44 +174,73 @@ void echan_h_v(int16_t *mat1, int16_t *mat2, int16_t *mat3, int16_t *mat4, int16
 }
 
 
-void mcu_echan_h(MCUTransform *mcu, MCUTransform *echan_mcu) {
-    echan_mcu->tailleC = 1;
-//    printf("%d\n", mcu->tailleC);
+void mcu_echantillonnage(MCUTransform *mcu, MCUTransform *echan_mcu, int h1, int l1, int h2, int l2, int h3, int l3) {
+    echan_mcu->tailleCb = h2*l2;
+    echan_mcu->tailleCr = h3*l3;
     echan_mcu->tailleY = mcu->tailleY;
     echan_mcu->Y = mcu->Y;
-//    afficher_mcu2(*echan_mcu);
-    echan_mcu->Cb = malloc(sizeof(int16_t));
-    echan_mcu->Cr = malloc(sizeof(int16_t));
-    echan_mcu->Cb[0] = malloc(64* sizeof(int16_t));
-    echan_mcu->Cr[0] = malloc(64* sizeof(int16_t));
-//    afficher_mcu2(*mcu);
-    if (mcu->tailleC > 1) {
-        echan_h(mcu->Cr[0],
-                mcu->Cr[1],
-                echan_mcu->Cr[0]);
-        echan_h(mcu->Cb[0],
-                mcu->Cb[1],
-                echan_mcu->Cb[0]);
-        afficher_mcu2(*echan_mcu);
-        if (mcu->tailleC == 4) {
-            echan_mcu->tailleC ++;
-            echan_mcu->Cb[1] = malloc(64* sizeof(int16_t));
-            echan_mcu->Cr[1] = malloc(64* sizeof(int16_t));
+    //Allocation des mcus
+    echan_mcu->Cb = malloc(echan_mcu->tailleCb * sizeof(int16_t));
+    echan_mcu->Cr = malloc(echan_mcu->tailleCr * sizeof(int16_t));
+    for (int i = 0; i < echan_mcu->tailleCb; ++i) {
+        echan_mcu->Cb[i] = malloc(64* sizeof(int16_t));
 
-            echan_h(mcu->Cr[2],
-                    mcu->Cr[3],
-                    echan_mcu->Cr[1]);
-            echan_h(mcu->Cb[2],
-                    mcu->Cb[3],
-                    echan_mcu->Cb[1]);
+    }
+    for (int j = 0; j < echan_mcu->tailleCr; ++j) {
+        echan_mcu->Cr[j] = malloc(64* sizeof(int16_t));
 
+    }
+    if(h1 == 2 && l1==1) {
+        if (h2 == 1 && l2 == 1 && h3 == 1 && l3 == 1) {
+            echan_h(mcu->Cr[0],
+                    mcu->Cr[1],
+                    echan_mcu->Cr[0]);
+            echan_h(mcu->Cb[0],
+                    mcu->Cb[1],
+                    echan_mcu->Cb[0]);
+        }
+        if (h2 == 2 && l2 == 1 && h3 == 1 && l3 == 1) {
+            echan_mcu->Cb = mcu->Cb;
+            echan_h(mcu->Cr[0],
+                    mcu->Cr[1],
+                    echan_mcu->Cr[0]);
+        }
+        if (h2 == 1 && l2 == 1 && h3 == 2 && l3 == 1) {
+            echan_mcu->Cr = mcu->Cr;
+            echan_h(mcu->Cb[0],
+                    mcu->Cb[1],
+                    echan_mcu->Cb[0]);
+        }
+    }
+
+    if (h1==2 && l1==2){
+        if (h2 == 1 && l2 == 2) {
+            echan_h(mcu->Cb[0], mcu->Cb[1], echan_mcu->Cb[0]);
+            echan_h(mcu->Cb[2], mcu->Cb[3], echan_mcu->Cb[1]);
+        }
+        if (h3 == 1 && l3 == 2) {
+            echan_h(mcu->Cr[0], mcu->Cr[1], echan_mcu->Cr[0]);
+            echan_h(mcu->Cr[2], mcu->Cr[3], echan_mcu->Cr[1]);
+        }
+        if (h3 == 1 && l3 == 1) {
+            echan_h_v(mcu->Cr[0],
+                      mcu->Cr[1], mcu->Cr[2], mcu->Cr[3],
+                      echan_mcu->Cr[0]);
+        }
+        if (h2 == 1 && l2==1){
+            echan_h_v(mcu->Cb[0],
+                      mcu->Cb[1], mcu->Cb[2], mcu->Cb[3],
+                      echan_mcu->Cb[0]);
+            }
+        else{
+            printf("echantillonnage non gere par l'encodeur");
         }
     } else {
         printf("Taille du mcu incompatible");
     }
 }
 
-void mcu_echan_h_v(MCUTransform *mcu, MCUTransform *echan_mcu) {
+/*void mcu_echan_h_v(MCUTransform *mcu, MCUTransform *echan_mcu) {
     echan_mcu->tailleC = 1;
     echan_mcu->tailleY = mcu->tailleY;
     if (mcu->tailleC < 4) {
@@ -223,30 +255,31 @@ void mcu_echan_h_v(MCUTransform *mcu, MCUTransform *echan_mcu) {
         echan_h_v(mcu->Cr[0], mcu->Cr[1], mcu->Cr[2], mcu->Cr[3], echan_mcu->Cr[0]);
 
     }
-}
+}*/
 
-void MATmcu_echan_h_v(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu) {
+void mat_mcu_echantillonnage(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu, int h1, int l1, int h2, int l2, int h3, int l3) {
+    afficherAllMCUs2(matmcu);
     for (int i = 0; i < matmcu->nblignes*matmcu->nbcol; ++i) {
-        mcu_echan_h_v(&(matmcu->mcus[i]), &(echan_matmcu->mcus[i]));
+        mcu_echantillonnage(&(matmcu->mcus[i]), &(echan_matmcu->mcus[i]), h1, l1, h2, l2, h3, l3);
     }
 
 
 }
 
-void MATmcu_echan_h(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu) {
+/*void MATmcu_echan_h(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu) {
 
     for (int i = 0; i < echan_matmcu->nbcol*echan_matmcu->nblignes; ++i) {
         mcu_echan_h(&(matmcu->mcus[i]), &(echan_matmcu->mcus[i]));
 
     }
-}
+}*/
 
 
-void echantillonnage(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu, int h1, int l1, int h2, int l2) {
+void echantillonnage(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu, int h1, int l1, int h2, int l2, int h3, int l3) {
     printf("%d %d\n", matmcu->nbcol, matmcu->nblignes);
     MCUsTransformMat *fusionmatmcu = fusion_mcu(matmcu, h1, l1);
     printf("%d %d\n", fusionmatmcu->nbcol, fusionmatmcu->nblignes);
-    if (l1 == l2 && h1 == h2) {
+    if (l1 == l2 && h1 == h2 && l1==l3 && h1==h3) {
         //pas d'echantillonnage
         *echan_matmcu = *fusionmatmcu;
         printf("%d %d\n", echan_matmcu->nblignes, echan_matmcu->nbcol);
@@ -255,7 +288,8 @@ void echantillonnage(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu, i
         echan_matmcu->nblignes = fusionmatmcu->nblignes;
         echan_matmcu->nbcol = fusionmatmcu->nbcol;
         echan_matmcu->mcus = malloc(echan_matmcu->nbcol * echan_matmcu->nblignes * sizeof(MCUTransform));
-        if (l1 == 2 && h1 == 2) {
+        mat_mcu_echantillonnage(fusionmatmcu, echan_matmcu, h1, l1, h2, l2, h3, l3);
+       /* if (l1 == 2 && h1 == 2) {
             if (l2 == 2 && h2 == 1) {
                 MATmcu_echan_h(fusionmatmcu, echan_matmcu);
             }
@@ -265,7 +299,7 @@ void echantillonnage(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu, i
         }
         if (h1 == 2 && l1 == 1 && l2 == 1 && h2 == 1) {
             MATmcu_echan_h(fusionmatmcu, echan_matmcu);
-        }
+        }*/
     }
 }
 
@@ -298,7 +332,7 @@ void afficher_mcu2(MCUTransform mcu) {
         printf("\n\n");
     }
     if (mcu.Cb != NULL) {
-        for (int i = 0; i <mcu.tailleC; ++i) {
+        for (int i = 0; i <mcu.tailleCb; ++i) {
             printf("[Cb%i]\n", i);
 
             for (int j = 0; j < 64; ++j) {
@@ -308,7 +342,10 @@ void afficher_mcu2(MCUTransform mcu) {
                 printf("%hx  ", mcu.Cb[i][j]);
             }
             printf("\n\n");
+        }
+        for (int i = 0; i <mcu.tailleCr; ++i) {
             printf("[Cr%i]\n", i);
+
             for (int j = 0; j < 64; ++j) {
                 if (j % 8 == 0) {
                     printf("\n");
