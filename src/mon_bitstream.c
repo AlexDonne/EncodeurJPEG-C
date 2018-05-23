@@ -47,6 +47,10 @@ void bitstream_write_nbits(struct bitstream *stream, uint32_t value, uint8_t nbi
     stream->indice += nbits;
     if (stream->indice == 8) {
         fwrite(&(stream->buffer), sizeof(uint8_t), 1, stream->fichier);
+        if (stream->buffer == 0xff && !is_marker) {
+            value1 = 0;
+            fwrite(&value1, sizeof(uint8_t), 1, stream->fichier);
+        }
         stream->buffer = 0;
         stream->indice = 0;
     }

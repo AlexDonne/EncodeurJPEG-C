@@ -4,7 +4,6 @@
 #include "../include/mon_bitstream.h"
 #include "../include/jpeg_writer.h"
 #include "../include/qtables.h"
-#include "../include/htables.h"
 #include <string.h>
 
 
@@ -15,6 +14,11 @@ struct jpeg_desc *jpeg_desc_create(void) {
 
 
 void jpeg_desc_destroy(struct jpeg_desc *jdesc) {
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            free(jdesc->huffman_tables[i][j]);
+        }
+    }
     bitstream_destroy(jdesc->stream);
     free(jdesc);
 }

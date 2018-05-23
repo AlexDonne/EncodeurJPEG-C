@@ -7,6 +7,8 @@
 #include "qtables.h"
 #include "structures.h"
 #include "test_malloc.h"
+#include "mon_bitstream.h"
+#include "jpeg_writer.h"
 
 #ifndef ETU_CODAGE_HUFFMAN_RLE_H
 #define ETU_CODAGE_HUFFMAN_RLE_H

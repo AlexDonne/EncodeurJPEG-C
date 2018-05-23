@@ -1,6 +1,4 @@
 #include "../include/codage_huffman_RLE.h"
-#include "../include/mon_bitstream.h"
-#include "../include/jpeg_writer.h"
 
 void ecrire_codage_differenciel_DC(struct bitstream *stream, int16_t nombre, enum color_component cc) {
     uint8_t magnitude;
