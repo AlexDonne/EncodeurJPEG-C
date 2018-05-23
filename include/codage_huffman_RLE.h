@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include "htables.h"
 #include "qtables.h"
-#include "huffman.h"
 #include "structures.h"
 #include "test_malloc.h"
 

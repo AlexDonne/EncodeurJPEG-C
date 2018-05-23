@@ -20,6 +20,9 @@ struct bitstream *bitstream_create(const char *filename) {
     2.10.4 du sujet). Attention nbits doit être compris entre 1 et 32.
 */
 void bitstream_write_nbits(struct bitstream *stream, uint32_t value, uint8_t nbits, bool is_marker) {
+    if (is_marker) {
+        bitstream_flush(stream);
+    }
     uint8_t value1;
     while (nbits + stream->indice > 8) {
         /* on écrit la première partie de value */
@@ -42,6 +45,11 @@ void bitstream_write_nbits(struct bitstream *stream, uint32_t value, uint8_t nbi
     }
     stream->buffer += (value << (32 - nbits)) >> (24 + stream->indice);
     stream->indice += nbits;
+    if (stream->indice == 8) {
+        fwrite(&(stream->buffer), sizeof(uint8_t), 1, stream->fichier);
+        stream->buffer = 0;
+        stream->indice = 0;
+    }
 };
 
 /*

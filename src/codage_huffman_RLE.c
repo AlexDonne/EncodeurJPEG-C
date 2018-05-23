@@ -1,5 +1,6 @@
 #include "../include/codage_huffman_RLE.h"
-#include "../include/bitstream.h"
+#include "../include/mon_bitstream.h"
+#include "../include/jpeg_writer.h"
 
 void ecrire_codage_differenciel_DC(struct bitstream *stream, int16_t nombre, enum color_component cc) {
     uint8_t magnitude;
@@ -79,11 +80,14 @@ void ecrire_codage_AC_avec_RLE(struct bitstream *stream, int16_t *tab, enum colo
 }
 
 
-struct bitstream *ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filename, const char *jpeg_filename, uint32_t image_height, uint32_t image_width, bool couleur) {
+struct bitstream *
+ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filename, const char *jpeg_filename, uint32_t image_height,
+              uint32_t image_width, bool couleur) {
     jpeg_desc_set_ppm_filename(jdesc, ppm_filename);
     jpeg_desc_set_jpeg_filename(jdesc, jpeg_filename);
     jpeg_desc_set_image_width(jdesc, image_width);
     jpeg_desc_set_image_height(jdesc, image_height);
+    jpeg_desc_set_comment(jdesc, "<3 le projet C");
     if (couleur) {
         jpeg_desc_set_nb_components(jdesc, 3);
         jpeg_desc_set_sampling_factor(jdesc, Y, H, 1);
@@ -93,36 +97,40 @@ struct bitstream *ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filenam
         jpeg_desc_set_sampling_factor(jdesc, Cb, H, 1);
         jpeg_desc_set_sampling_factor(jdesc, Cb, V, 1);
 
-        struct huff_table *htable1 = huffman_table_build(htables_nb_symb_per_lengths[DC][Y], htables_symbols[DC][Y], htables_nb_symbols[DC][Y]);
-        jpeg_desc_set_huffman_table(jdesc, DC, Y, htable1);
-        struct huff_table *htable2 = huffman_table_build(htables_nb_symb_per_lengths[AC][Y], htables_symbols[AC][Y], htables_nb_symbols[AC][Y]);
-        jpeg_desc_set_huffman_table(jdesc, AC, Y, htable2);
 
-
-        struct huff_table *htable3 = huffman_table_build(htables_nb_symb_per_lengths[DC][Cr], htables_symbols[DC][Cr], htables_nb_symbols[DC][Cr]);
-        jpeg_desc_set_huffman_table(jdesc, DC, Cr, htable3);
-        struct huff_table *htable4 = huffman_table_build(htables_nb_symb_per_lengths[AC][Cr], htables_symbols[AC][Cr], htables_nb_symbols[AC][Cr]);
-        jpeg_desc_set_huffman_table(jdesc, AC, Cr, htable4);
-
-
-        struct huff_table *htable5 = huffman_table_build(htables_nb_symb_per_lengths[DC][Cb], htables_symbols[DC][Cb], htables_nb_symbols[DC][Cb]);
-        jpeg_desc_set_huffman_table(jdesc, DC, Cb, htable5);
-        struct huff_table *htable6 = huffman_table_build(htables_nb_symb_per_lengths[AC][Cb], htables_symbols[AC][Cb], htables_nb_symbols[AC][Cb]);
-        jpeg_desc_set_huffman_table(jdesc, AC, Cb, htable6);
-
+        jpeg_desc_set_huffman_table(jdesc, DC, Y,
+                                       concatener(htables_nb_symb_per_lengths[DC][Y], htables_symbols[DC][Y],
+                                                  htables_nb_symbols[DC][Y]), htables_nb_symbols[DC][Y]);
+        jpeg_desc_set_huffman_table(jdesc, AC, Y,
+                                       concatener(htables_nb_symb_per_lengths[AC][Y], htables_symbols[AC][Y],
+                                                  htables_nb_symbols[AC][Y]), htables_nb_symbols[AC][Y]);
+        jpeg_desc_set_huffman_table(jdesc, DC, Cb,
+                                       concatener(htables_nb_symb_per_lengths[DC][Cb], htables_symbols[DC][Cb],
+                                                  htables_nb_symbols[DC][Cb]), htables_nb_symbols[DC][Cb]);
+        jpeg_desc_set_huffman_table(jdesc, AC, Cb,
+                                       concatener(htables_nb_symb_per_lengths[AC][Cb], htables_symbols[AC][Cb],
+                                                  htables_nb_symbols[AC][Cb]), htables_nb_symbols[AC][Cb]);
+        jpeg_desc_set_huffman_table(jdesc, DC, Cr,
+                                       concatener(htables_nb_symb_per_lengths[DC][Cr], htables_symbols[DC][Cr],
+                                                  htables_nb_symbols[DC][Cr]), htables_nb_symbols[DC][Cr]);
+        jpeg_desc_set_huffman_table(jdesc, AC, Cr,
+                                       concatener(htables_nb_symb_per_lengths[AC][Cr], htables_symbols[AC][Cr],
+                                                  htables_nb_symbols[AC][Cr]), htables_nb_symbols[AC][Cr]);
 
         jpeg_desc_set_quantization_table(jdesc, Cb, compressed_CbCr_table);
         jpeg_desc_set_quantization_table(jdesc, Cr, compressed_CbCr_table);
         jpeg_desc_set_quantization_table(jdesc, Y, compressed_Y_table);
-    }
-    else {
+    } else {
+
         jpeg_desc_set_nb_components(jdesc, 1);
         jpeg_desc_set_sampling_factor(jdesc, Y, H, 1);
         jpeg_desc_set_sampling_factor(jdesc, Y, V, 1);
-        struct huff_table *htable1 = huffman_table_build(htables_nb_symb_per_lengths[DC][Y], htables_symbols[DC][Y], htables_nb_symbols[DC][Y]);
-        jpeg_desc_set_huffman_table(jdesc, DC, Y, htable1);
-        struct huff_table *htable2 = huffman_table_build(htables_nb_symb_per_lengths[AC][Y], htables_symbols[AC][Y], htables_nb_symbols[AC][Y]);
-        jpeg_desc_set_huffman_table(jdesc, AC, Y, htable2);
+        jpeg_desc_set_huffman_table(jdesc, DC, Y,
+                                    concatener(htables_nb_symb_per_lengths[DC][Y], htables_symbols[DC][Y],
+                                               htables_nb_symbols[DC][Y]), htables_nb_symbols[DC][Y]);
+        jpeg_desc_set_huffman_table(jdesc, AC, Y,
+                                    concatener(htables_nb_symb_per_lengths[AC][Y], htables_symbols[AC][Y],
+                                               htables_nb_symbols[AC][Y]), htables_nb_symbols[AC][Y]);
         jpeg_desc_set_quantization_table(jdesc, Y, compressed_Y_table);
     }
     jpeg_write_header(jdesc);
@@ -133,22 +141,22 @@ struct bitstream *ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filenam
 void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform) {
     struct jpeg_desc *jdesc = jpeg_desc_create();
     if (image->type == RGB) {
-        struct bitstream *stream = ecrire_entete(jdesc, image->chemin, image->nom, image->hauteur, image->largeur, true);
+        struct bitstream *stream = ecrire_entete(jdesc, image->chemin, image->nom, image->hauteur, image->largeur,
+                                                 true);
         for (int i = 0; i < mcusTransform->nbcol * mcusTransform->nblignes; ++i) {
             int16_t dcy, dccr, dccb;
-            if (i==0){
+            if (i == 0) {
                 dcy = mcusTransform->mcus[i].Y[0][0];
                 dccr = mcusTransform->mcus[i].Cr[0];
                 dccb = mcusTransform->mcus[i].Cb[0];
-            }
-            else {
-                dcy = mcusTransform->mcus[i].Y[0][0] - mcusTransform->mcus[i-1].Y[0][0];
-                dccr = mcusTransform->mcus[i].Cr[0] - mcusTransform->mcus[i-1].Cr[0];
-                dccb = mcusTransform->mcus[i].Cb[0] - mcusTransform->mcus[i-1].Cb[0];
+            } else {
+                dcy = mcusTransform->mcus[i].Y[0][0] - mcusTransform->mcus[i - 1].Y[0][0];
+                dccr = mcusTransform->mcus[i].Cr[0] - mcusTransform->mcus[i - 1].Cr[0];
+                dccb = mcusTransform->mcus[i].Cb[0] - mcusTransform->mcus[i - 1].Cb[0];
             }
 
             ecrire_codage_differenciel_DC(stream, dcy, Y);
-            ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Y[0], Y,i);
+            ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Y[0], Y, i);
 
 
             ecrire_codage_differenciel_DC(stream, dccb, Cb);
@@ -158,16 +166,14 @@ void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform) {
             ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Cr, Cr, i);
 
         }
-    }
-    else {
+    } else {
         struct bitstream *stream = ecrire_entete(jdesc, image->nom, image->nom, image->hauteur, image->largeur, false);
         for (int i = 0; i < mcusTransform->nbcol * mcusTransform->nblignes; ++i) {
             int16_t dc;
-            if (i==0){
+            if (i == 0) {
                 dc = mcusTransform->mcus[i].Y[0][0];
-            }
-            else {
-                dc = mcusTransform->mcus[i].Y[0][0] - mcusTransform->mcus[i-1].Y[0][0];
+            } else {
+                dc = mcusTransform->mcus[i].Y[0][0] - mcusTransform->mcus[i - 1].Y[0][0];
             }
             ecrire_codage_differenciel_DC(stream, dc, Y);
             ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Y[0], Y, i);
@@ -188,7 +194,7 @@ void libererImage(ImagePPM *image) {
     free(image);
 }
 
-void libererMCUsTransform(MCUsTransformMat *mcUsTransform){
+void libererMCUsTransform(MCUsTransformMat *mcUsTransform) {
     for (int i = 0; i < mcUsTransform->nblignes * mcUsTransform->nbcol; ++i) {
         libererMCUTransform(&(mcUsTransform->mcus[i]));
     }
@@ -196,7 +202,7 @@ void libererMCUsTransform(MCUsTransformMat *mcUsTransform){
     free(mcUsTransform);
 }
 
-void libererMCUTransform(MCUTransform *mcuTransform){
+void libererMCUTransform(MCUTransform *mcuTransform) {
     for (int i = 0; i < mcuTransform->tailleY; ++i) {
         free(mcuTransform->Y[i]);
     }
