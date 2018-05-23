@@ -10,20 +10,23 @@
 MCUTransform rgbTOycbcr(MCUPixels mcuPixels) {
     MCUTransform mcuTransform;
     mcuTransform.tailleY = 1;
-    mcuTransform.Y = malloc(1 * sizeof(int16_t));
+    mcuTransform.tailleC = 1;
+    mcuTransform.Y = malloc(sizeof(int16_t));
+    mcuTransform.Cb = malloc(sizeof(int16_t));
+    mcuTransform.Cr = malloc(sizeof(int16_t));
     mcuTransform.Y[0] = malloc(64 * sizeof(int16_t));
-    mcuTransform.Cb = malloc(64 * sizeof(int16_t));
-    mcuTransform.Cr = malloc(64 * sizeof(int16_t));
+    mcuTransform.Cb[0] = malloc(64 * sizeof(int16_t));
+    mcuTransform.Cr[0] = malloc(64 * sizeof(int16_t));
     for (int j = 0; j < 64; ++j) {
         mcuTransform.Y[0][j] = round(0.299 * mcuPixels.blocsRGB[j].rouge
                                      + 0.587 * mcuPixels.blocsRGB[j].vert
                                      + 0.114 * mcuPixels.blocsRGB[j].bleu);
 
-        mcuTransform.Cb[j] = round(-0.1687 * mcuPixels.blocsRGB[j].rouge
+        mcuTransform.Cb[0][j] = round(-0.1687 * mcuPixels.blocsRGB[j].rouge
                                    - 0.3313 * mcuPixels.blocsRGB[j].vert
                                    + 0.5 * mcuPixels.blocsRGB[j].bleu + 128);
 
-        mcuTransform.Cr[j] = round(0.5 * mcuPixels.blocsRGB[j].rouge
+        mcuTransform.Cr[0][j] = round(0.5 * mcuPixels.blocsRGB[j].rouge
                                    - 0.4187 * mcuPixels.blocsRGB[j].vert
                                    - 0.0813 * mcuPixels.blocsRGB[j].bleu + 128);
 
@@ -93,13 +96,18 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
     if (mcusTransformMat->mcus[0].Cb != NULL) {
         for (int i = 0; i < mcusTransformMat->nbcol * mcusTransformMat->nblignes; ++i) {
             MCUTransform intermediaire;
-            intermediaire.Cb = malloc(64* sizeof(int16_t));
-            intermediaire.Cr = malloc(64* sizeof(int16_t));
+            intermediaire.tailleC = 0;
+            intermediaire.Cb = malloc(sizeof(int16_t));
+            intermediaire.Cr = malloc(sizeof(int16_t));
+            intermediaire.Cb[0] = malloc(64* sizeof(int16_t));
+            intermediaire.Cr[0] = malloc(64* sizeof(int16_t));
             intermediaire.tailleY = mcusTransformMat->mcus[i].tailleY;
             intermediaire.Y = malloc(intermediaire.tailleY * sizeof(int16_t));
             MCUTransform final;
-            final.Cb = malloc(64* sizeof(int16_t));
-            final.Cr = malloc(64* sizeof(int16_t));
+            final.Cb = malloc(sizeof(int16_t));
+            final.Cr = malloc(sizeof(int16_t));
+            final.Cb[0] = malloc(64* sizeof(int16_t));
+            final.Cr[0] = malloc(64* sizeof(int16_t));
             final.tailleY = mcusTransformMat->mcus[i].tailleY;
             final.Y = malloc(final.tailleY * sizeof(int16_t));
             MCUToQuantifRGB(&(mcusTransformMat->mcus[i]), &intermediaire, &final);
@@ -137,12 +145,12 @@ void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *fin
         zigzag(dct_mcu->Y[i], final->Y[i]);
         quantificationY(final->Y[i]);
     }
-    discrete_cosinus_transform(mcu->Cb, dct_mcu->Cb);
-    discrete_cosinus_transform(mcu->Cr, dct_mcu->Cr);
-    zigzag(dct_mcu->Cb, final->Cb);
-    zigzag(dct_mcu->Cr, final->Cr);
-    quantificationCbCr(final->Cb);
-    quantificationCbCr(final->Cr);
+    discrete_cosinus_transform(mcu->Cb[0], dct_mcu->Cb[0]);
+    discrete_cosinus_transform(mcu->Cr[0], dct_mcu->Cr[0]);
+    zigzag(dct_mcu->Cb[0], final->Cb[0]);
+    zigzag(dct_mcu->Cr[0], final->Cr[0]);
+    quantificationCbCr(final->Cb[0]);
+    quantificationCbCr(final->Cr[0]);
 }
 
 /**
@@ -186,21 +194,21 @@ void afficher_mcu(MCUTransform mcu) {
         }
         printf("\n\n");
     }
-    if (mcu.Cb != NULL) {
-        printf("[Cb]\n");
+    if (mcu.Cb[0] != NULL) {
+        printf("[Cb[0]]\n");
         for (int j = 0; j < 64; ++j) {
             if (j%8 == 0){
                 printf("\n");
             }
-            printf("%04hx  ", mcu.Cb[j]);
+            printf("%04hx  ", mcu.Cb[0][j]);
         }
         printf("\n\n");
-        printf("[Cr]\n");
+        printf("[Cr[0]]\n");
         for (int j = 0; j < 64; ++j) {
             if (j%8 == 0){
                 printf("\n");
             }
-            printf("%04hx  ", mcu.Cr[j]);
+            printf("%04hx  ", mcu.Cr[0][j]);
         }
         printf("\n");
     }

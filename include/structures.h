@@ -53,8 +53,10 @@ typedef struct mcusMatrice{
 typedef struct mcuTransform{
     int16_t **Y;
     int tailleY;
-    int16_t *Cb;
-    int16_t *Cr;
+    int16_t **Cb;
+    int16_t **Cr;
+    int tailleCb;
+    int tailleCr;
 
 }MCUTransform;
 
