@@ -28,6 +28,7 @@ struct my_jpeg_desc {
 
 struct my_jpeg_desc *my_jpeg_desc_create(void) {
     struct my_jpeg_desc *jdesc = malloc(sizeof(struct my_jpeg_desc));
+
     jdesc->ppm_filename = NULL;
     jdesc->jpeg_filename = NULL;
     jdesc->commentaire = NULL;
@@ -60,14 +61,8 @@ void my_jpeg_desc_destroy(struct my_jpeg_desc *jdesc) {
 
 
 
-
-
 void my_jpeg_desc_set_ppm_filename(struct my_jpeg_desc *jdesc, char *ppm_filename) {
   jdesc->ppm_filename = ppm_filename;
-}
-
-void my_jpeg_desc_set_comment(struct my_jpeg_desc *jdesc, char *commentaire) {
-  jdesc->commentaire = commentaire;
 }
 
 
@@ -75,6 +70,14 @@ void my_jpeg_desc_set_jpeg_filename(struct my_jpeg_desc *jdesc, char *jpeg_filen
   jdesc->jpeg_filename = jpeg_filename;
   jdesc->stream = bitstream_create(jpeg_filename);
 }
+
+
+void my_jpeg_desc_set_comment(struct my_jpeg_desc *jdesc, char *commentaire) {
+  jdesc->commentaire = commentaire;
+}
+
+
+
 
 
 void my_jpeg_desc_set_quantization_table(struct my_jpeg_desc *jdesc, enum color_component cc, uint8_t *qtable) {
@@ -182,6 +185,10 @@ void ecrire_DHT(struct my_jpeg_desc *jdesc) {
   }
 }
 
+void ecrire_EOI(struct my_jpeg_desc *jdesc) {
+  bitstream_write_nbits(jdesc->stream, 0xffd9, 16, true);
+}
+
 void ecrire_SOS(struct my_jpeg_desc *jdesc) {
   bitstream_write_nbits(jdesc->stream, 0xffda, 16, true);
   bitstream_write_nbits(jdesc->stream, 6 + 2*jdesc->nb_components, 16, false); // longueur section
@@ -207,10 +214,30 @@ uint8_t *concatener(uint8_t *htables_nb_symb_per_lengths, uint8_t *htables_symbo
   return tab;
 }
 
+
+void my_jpeg_write_header(struct my_jpeg_desc *jdesc) {
+  ecrire_SOI(jdesc);
+  ecrire_APPx(jdesc);
+  ecrire_COM(jdesc);
+  ecrire_DQT(jdesc);
+  ecrire_SOF(jdesc);
+  ecrire_DHT(jdesc);
+  ecrire_SOS(jdesc);
+}
+
+
+void my_jpeg_write_footer(struct my_jpeg_desc *jdesc) {
+  ecrire_EOI(jdesc);
+}
+
+struct bitstream *my_jpeg_desc_get_bitstream(struct my_jpeg_desc *jdesc) {
+  return jdesc->stream;
+}
+
 int main() {
   struct my_jpeg_desc *jdesc = my_jpeg_desc_create();
-  my_jpeg_desc_set_jpeg_filename(jdesc, "image.pgm");
-  my_jpeg_desc_set_ppm_filename(jdesc, "bachanas2.jpg");
+  my_jpeg_desc_set_jpeg_filename(jdesc, "bachanas3.jpg");
+  my_jpeg_desc_set_ppm_filename(jdesc, "image.ppm" );
   my_jpeg_desc_set_comment(jdesc, "<3 le projet C");
   my_jpeg_desc_set_quantization_table(jdesc, Y, compressed_Y_table);
   my_jpeg_desc_set_quantization_table(jdesc, Cb, compressed_CbCr_table);
@@ -229,12 +256,8 @@ int main() {
   my_jpeg_desc_set_huffman_table(jdesc, AC, Cb, concatener(htables_nb_symb_per_lengths[AC][Cb], htables_symbols[AC][Cb], htables_nb_symbols[AC][Cb]), htables_nb_symbols[AC][Cb]);
   my_jpeg_desc_set_huffman_table(jdesc, DC, Cr, concatener(htables_nb_symb_per_lengths[DC][Cr], htables_symbols[DC][Cr], htables_nb_symbols[DC][Cr]), htables_nb_symbols[DC][Cr]);
   my_jpeg_desc_set_huffman_table(jdesc, AC, Cr, concatener(htables_nb_symb_per_lengths[AC][Cr], htables_symbols[AC][Cr], htables_nb_symbols[AC][Cr]), htables_nb_symbols[AC][Cr]);
-  ecrire_SOI(jdesc);
-  ecrire_APPx(jdesc);
-  ecrire_COM(jdesc);
-  ecrire_DQT(jdesc);
-  ecrire_SOF(jdesc);
-  ecrire_DHT(jdesc);
-  ecrire_SOS(jdesc);
+  my_jpeg_write_header(jdesc);
+  my_jpeg_write_footer(jdesc);
+  my_jpeg_desc_destroy(jdesc);
   return EXIT_SUCCESS;
 }
