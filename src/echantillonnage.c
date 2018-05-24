@@ -45,7 +45,7 @@ MCUsTransformMat *fusion_mcu(MCUsTransformMat *matmcu, int h1, int l1) {
             fusionmatmcu->mcus = malloc(fusionmatmcu->nbcol * fusionmatmcu->nblignes * sizeof(MCUTransform));
             for (int i = 0; i < fusionmatmcu->nbcol; ++i) {
                 for (int j = 0; j < fusionmatmcu->nbcol; ++j) {
-                    //fusion des blocs 8x8 pour avoir un mcu de taille 2x1;
+                    //fusion des blocs 8x8 pour avoir un mcu de taille 1x2;
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleY = 2;
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleCb = 2;
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].tailleCr = 2;
@@ -59,16 +59,16 @@ MCUsTransformMat *fusion_mcu(MCUsTransformMat *matmcu, int h1, int l1) {
                     }
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Y[0] = matmcu->mcus[2 * i * fusionmatmcu->nbcol +
                                                                                         j].Y[0];
-                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Y[1] = matmcu->mcus[
-                            (2 * i + 1) * fusionmatmcu->nbcol + j].Y[0];
-                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cb[0] = matmcu->mcus[i * fusionmatmcu->nbcol +
+                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Y[1] = matmcu->mcus[(2 * i + 1) * fusionmatmcu->nbcol
+                                                                                        + j].Y[0];
+                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cb[0] = matmcu->mcus[2 * i * fusionmatmcu->nbcol +
                                                                                          j].Cb[0];
-                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cr[0] = matmcu->mcus[i * fusionmatmcu->nbcol +
+                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cr[0] = matmcu->mcus[2 * i * fusionmatmcu->nbcol +
                                                                                          j].Cr[0];
-                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cr[1] = matmcu->mcus[
-                            (2 * i + 1) * fusionmatmcu->nbcol + j].Cr[0];
-                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cb[1] = matmcu->mcus[
-                            (2 * i + 1) * fusionmatmcu->nbcol + j].Cb[0];
+                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cr[1] = matmcu->mcus[(2 * i + 1) * fusionmatmcu->nbcol
+                                                                                         + j].Cr[0];
+                    fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cr[1] = matmcu->mcus[(2 * i + 1) * fusionmatmcu->nbcol
+                                                                                         + j].Cb[0];
 
                 }
             }
@@ -119,8 +119,11 @@ MCUsTransformMat *fusion_mcu(MCUsTransformMat *matmcu, int h1, int l1) {
                                                                                          2 * j].Cr[0];
                     fusionmatmcu->mcus[i * fusionmatmcu->nbcol + j].Cr[3] = matmcu->mcus[(2 * i + 1) * matmcu->nbcol +
                                                                                          2 * j + 1].Cr[0];
+                    if((2 * i) * matmcu->nbcol + 2 * j){
 
+                    }
                 }
+
             }
         }
         return fusionmatmcu;
@@ -133,6 +136,18 @@ void echan_h(int16_t *mat1, int16_t *mat2, int16_t *echan_mat) {
                 echan_mat[i * 8 + j] = round((mat1[i * 8 + 2 * j] + mat1[i * 8 + 2 * j + 1])) / 2;
             } else {
                 echan_mat[i * 8 + j] = round((mat2[i * 8 + 2 * (j-4)] + mat2[i * 8 + 2 *(j-4) + 1])) / 2;
+            }
+        }
+    }
+}
+
+void echan_v(int16_t *mat1, int16_t *mat2, int16_t *echan_mat){
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            if (i<4) {
+                echan_mat[i * 8 + j] = round((mat1[2*i * 8 + j] + mat1[2*(i+1) * 8 + j])) / 2;
+            } else {
+                echan_mat[i * 8 + j] = round((mat2[2*(i-4) * 8 + j] + mat2[(2*(i-4)+1) * 8 + j])) / 2;
             }
         }
     }
@@ -190,29 +205,44 @@ void mcu_echantillonnage(MCUTransform *mcu, MCUTransform *echan_mcu, int h1, int
         echan_mcu->Cr[j] = malloc(64* sizeof(int16_t));
 
     }
-    if(h1 == 2 && l1==1) {
-        if (h2 == 1 && l2 == 1 && h3 == 1 && l3 == 1) {
-            echan_h(mcu->Cr[0],
-                    mcu->Cr[1],
-                    echan_mcu->Cr[0]);
-            echan_h(mcu->Cb[0],
-                    mcu->Cb[1],
-                    echan_mcu->Cb[0]);
-        }
-        if (h2 == 2 && l2 == 1 && h3 == 1 && l3 == 1) {
-            echan_mcu->Cb = mcu->Cb;
-            echan_h(mcu->Cr[0],
-                    mcu->Cr[1],
-                    echan_mcu->Cr[0]);
-        }
-        if (h2 == 1 && l2 == 1 && h3 == 2 && l3 == 1) {
-            echan_mcu->Cr = mcu->Cr;
-            echan_h(mcu->Cb[0],
-                    mcu->Cb[1],
-                    echan_mcu->Cb[0]);
-        }
+    if(h1 == h2 && l1==l2){
+        echan_mcu->Cb = mcu->Cb;
+    }
+    if(h1==h3 && l1==l3){
+        echan_mcu->Cr= mcu->Cr;
     }
 
+    if(h1 == 2 && l1==1) {
+        if (h2 == 1 && l2 == 1) {
+            echan_h(mcu->Cb[0],
+                    mcu->Cb[1],
+                    echan_mcu->Cb[0]);
+        }
+        if(h3 == 1 && l3 == 1){
+            echan_h(mcu->Cr[0],
+                    mcu->Cr[1],
+                    echan_mcu->Cr[0]);
+        }
+        else{
+            printf("sample incompatible");
+        }
+    }
+    if(h1== 1 && l1 == 2){
+        printf("cc\n");
+        if (h2 == 1 && l2 == 1) {
+            echan_v(mcu->Cb[0],
+                    mcu->Cb[1],
+                    echan_mcu->Cb[0]);
+        }
+        if(h3 == 1 && l3 == 1) {
+            echan_v(mcu->Cr[0],
+                    mcu->Cr[1],
+                    echan_mcu->Cr[0]);
+        }else{
+            printf("sample incompatible");
+        }
+
+    }
     if (h1==2 && l1==2){
         if (h2 == 1 && l2 == 2) {
             echan_h(mcu->Cb[0], mcu->Cb[1], echan_mcu->Cb[0]);
@@ -240,22 +270,7 @@ void mcu_echantillonnage(MCUTransform *mcu, MCUTransform *echan_mcu, int h1, int
     }
 }
 
-/*void mcu_echan_h_v(MCUTransform *mcu, MCUTransform *echan_mcu) {
-    echan_mcu->tailleC = 1;
-    echan_mcu->tailleY = mcu->tailleY;
-    if (mcu->tailleC < 4) {
-        printf("taille du mcu incompatible");
-    } else {
-        echan_mcu->Y = mcu->Y;
-        echan_mcu->Cb = malloc(sizeof(int16_t));
-        echan_mcu->Cr = malloc(sizeof(int16_t));
-        echan_mcu->Cb[0] = malloc(64* sizeof(int16_t));
-        echan_mcu->Cr[0] = malloc(64* sizeof(int16_t));
-        echan_h_v(mcu->Cb[0], mcu->Cb[1], mcu->Cb[2], mcu->Cb[3], echan_mcu->Cb[0]);
-        echan_h_v(mcu->Cr[0], mcu->Cr[1], mcu->Cr[2], mcu->Cr[3], echan_mcu->Cr[0]);
 
-    }
-}*/
 
 void mat_mcu_echantillonnage(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu, int h1, int l1, int h2, int l2, int h3, int l3) {
     afficherAllMCUs2(matmcu);
@@ -265,14 +280,6 @@ void mat_mcu_echantillonnage(MCUsTransformMat *matmcu, MCUsTransformMat *echan_m
 
 
 }
-
-/*void MATmcu_echan_h(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu) {
-
-    for (int i = 0; i < echan_matmcu->nbcol*echan_matmcu->nblignes; ++i) {
-        mcu_echan_h(&(matmcu->mcus[i]), &(echan_matmcu->mcus[i]));
-
-    }
-}*/
 
 
 void echantillonnage(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu, int h1, int l1, int h2, int l2, int h3, int l3) {
@@ -289,17 +296,6 @@ void echantillonnage(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu, i
         echan_matmcu->nbcol = fusionmatmcu->nbcol;
         echan_matmcu->mcus = malloc(echan_matmcu->nbcol * echan_matmcu->nblignes * sizeof(MCUTransform));
         mat_mcu_echantillonnage(fusionmatmcu, echan_matmcu, h1, l1, h2, l2, h3, l3);
-       /* if (l1 == 2 && h1 == 2) {
-            if (l2 == 2 && h2 == 1) {
-                MATmcu_echan_h(fusionmatmcu, echan_matmcu);
-            }
-            if (l2 == 1 && h2 == 1) {
-                MATmcu_echan_h_v(fusionmatmcu, echan_matmcu);
-            }
-        }
-        if (h1 == 2 && l1 == 1 && l2 == 1 && h2 == 1) {
-            MATmcu_echan_h(fusionmatmcu, echan_matmcu);
-        }*/
     }
 }
 
