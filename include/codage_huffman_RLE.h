@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <math.h>
 #include <stdbool.h>
-#include "htables.h"
 #include "qtables.h"
 #include "structures.h"
 #include "test_malloc.h"

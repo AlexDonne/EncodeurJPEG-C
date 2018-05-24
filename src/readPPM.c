@@ -5,11 +5,18 @@
  * @param chemin
  * @return
  */
-ImagePPM *creerImagePPM(char *chemin) {
+ImagePPM *creerImagePPM(char *chemin, char *nom) {
     ImagePPM *image = malloc(sizeof(struct imagePPM));
     test_malloc(image);
     image->chemin = chemin;
-    image->nom = nouveauNom(chemin);
+    if (nom == NULL){
+        image->nom = nouveauNom(chemin);
+    }
+    else {
+        image->nom = malloc(strlen(nom) * sizeof(char));
+        test_malloc(image->nom);
+        strcpy(image->nom, nom);
+    }
     lireFichierPPM(image);
     return image;
 }

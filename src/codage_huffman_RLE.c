@@ -1,4 +1,5 @@
 #include "../include/codage_huffman_RLE.h"
+#include "../include/htables.h"
 
 void ecrire_codage_differenciel_DC(struct bitstream *stream, int16_t nombre, enum color_component cc) {
     uint8_t magnitude;
@@ -19,8 +20,7 @@ void magnitude_indice(int16_t nombre, uint8_t *magnitude, uint16_t *indice) {
         N /= 2;
         *magnitude -= 1;
     }
-    *indice = (nombre > 0) ? abs_nombre : 2 * N - abs_nombre -
-                                          1; // indice dans la classe, le nombre de bits que l'on écrit est exactement la classe
+    *indice = (nombre > 0) ? abs_nombre : 2 * N - abs_nombre - 1; // indice dans la classe, le nombre de bits que l'on écrit est exactement la classe
 }
 
 

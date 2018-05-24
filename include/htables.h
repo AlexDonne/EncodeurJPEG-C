@@ -1,12 +1,7 @@
-//
-// Created by donnea on 5/23/18.
-//
-
 #ifndef ETU_HTABLES_H
 #define ETU_HTABLES_H
 
 #include <stdint.h>
-#include <stdio.h>
 
 
 uint8_t htables_nb_symb_per_lengths[2][3][16] = {
