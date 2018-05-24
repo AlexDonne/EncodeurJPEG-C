@@ -1,20 +1,17 @@
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include "../include/mon_bitstream.h"
 #include "../include/jpeg_writer.h"
-#include "../include/qtables.h"
-#include <string.h>
 
 
 struct jpeg_desc *jpeg_desc_create(void) {
     struct jpeg_desc *jdesc = malloc(sizeof(struct jpeg_desc));
+    test_malloc(jdesc);
     return jdesc;
 }
 
 
 void jpeg_desc_destroy(struct jpeg_desc *jdesc) {
-    for (int i = 0; i < 3; ++i) {
+    int n;
+    n = (jdesc->nb_components == 1) ? 1 : 3;
+    for (int i = 0; i < n; ++i) {
         for (int j = 0; j < 2; ++j) {
             free(jdesc->huffman_tables[i][j]);
         }
@@ -24,12 +21,12 @@ void jpeg_desc_destroy(struct jpeg_desc *jdesc) {
 }
 
 
-void jpeg_desc_set_ppm_filename(struct jpeg_desc *jdesc, char *ppm_filename) {
+void jpeg_desc_set_ppm_filename(struct jpeg_desc *jdesc, const char *ppm_filename) {
     jdesc->ppm_filename = ppm_filename;
 }
 
 
-void jpeg_desc_set_jpeg_filename(struct jpeg_desc *jdesc, char *jpeg_filename) {
+void jpeg_desc_set_jpeg_filename(struct jpeg_desc *jdesc, const char *jpeg_filename) {
     jdesc->jpeg_filename = jpeg_filename;
     jdesc->stream = bitstream_create(jpeg_filename);
 }
@@ -139,10 +136,8 @@ void ecrire_DHT(struct jpeg_desc *jdesc) {
             bitstream_write_nbits(jdesc->stream, 0, 3, false); // non utilisé, doit valoir (0 sinon erreur)
             bitstream_write_nbits(jdesc->stream, j, 1, false); // acdc
             bitstream_write_nbits(jdesc->stream, i, 4, false); // indice
-            printf("ecrire_DHT : \n");
             for (int k = 0; k < jdesc->taille_huffman_table[i][j]; k++) {
                 bitstream_write_nbits(jdesc->stream, jdesc->huffman_tables[i][j][k], 8, false);
-                printf("%i ", jdesc->huffman_tables[i][j][k]);
             }
         }
     }

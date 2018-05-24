@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <math.h>
-#include "../include/qtables.h"
 #include "../include/algo_matrices.h"
 
 const uint8_t ordre_zigzag[64] = {
@@ -27,13 +22,22 @@ const uint8_t ordre_zigzag[64] = {
 #define M_PI 3.14159265
 #endif
 
+/**
+ * Applique le zig zag sur une matrice
+ * @param matrice
+ * @param zig_matrice
+ */
 void zigzag(int16_t *matrice, int16_t *zig_matrice) {
     for (int i = 0; i < 64; i++) {
         zig_matrice[i] = matrice[(ordre_zigzag[i] >> 4) * 8 + (ordre_zigzag[i] & 7)];
     }
 }
 
-
+/**
+ * Applique le DCT sur une matrice
+ * @param matrice
+ * @param dct_matrice
+ */
 void discrete_cosinus_transform(int16_t *matrice, int16_t *dct_matrice) {
     /* on réalise l'opération -128 */
     for (int i = 0; i < 64; i++) {
@@ -49,7 +53,7 @@ void discrete_cosinus_transform(int16_t *matrice, int16_t *dct_matrice) {
             somme = 0;
             for (int x = 0; x < 8; x++) {
                 for (int y = 0; y < 8; y++) {
-                    somme += ( matrice[x * 8 + y]) * cos((2 * x + 1) * i * M_PI / (2 * n)) *
+                    somme += (matrice[x * 8 + y]) * cos((2 * x + 1) * i * M_PI / (2 * n)) *
                              cos((2 * y + 1) * j * M_PI / (2 * n));
                 }
             }
@@ -60,12 +64,20 @@ void discrete_cosinus_transform(int16_t *matrice, int16_t *dct_matrice) {
     }
 }
 
+/**
+ * Applique la quantification pour Y sur une matrice
+ * @param matrice
+ */
 void quantificationY(int16_t *matrice) {
     for (int i = 0; i < 64; i++) {
         matrice[i] = matrice[i] / compressed_Y_table[i];
     }
 }
 
+/**
+ * Applique la quantification pour Cb ou Cr sur une matrice
+ * @param matrice
+ */
 void quantificationCbCr(int16_t *matrice) {
     for (int i = 0; i < 64; i++) {
         matrice[i] = matrice[i] / compressed_CbCr_table[i];

@@ -1,7 +1,4 @@
 #include "../include/imageToMCUs.h"
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
 
 /**
  * Transforme la matrice de pixels de la structure image en un tableau de MCUs
@@ -16,7 +13,7 @@ MCUsMatrice *imageToMCUs(ImagePPM *image) {
     MCUsMatrice *matMCUs = malloc(sizeof(MCUsMatrice));
     test_malloc(matMCUs);
     matMCUs->nbcol = nouvLargeur / 8;
-    matMCUs->nblignes = nouvHauteur/ 8;
+    matMCUs->nblignes = nouvHauteur / 8;
     int taille = matMCUs->nbcol * matMCUs->nblignes;
     matMCUs->mcus = malloc(taille * sizeof(MCUPixels));
     test_malloc(matMCUs->mcus);
@@ -56,7 +53,6 @@ MCUsMatrice *imageToMCUs(ImagePPM *image) {
         }
         matMCUs->mcus[indTab] = mcu;
     }
-    //afficherMCUs(matMCUs);
     libererPixels(image, nouvHauteur);
     return matMCUs;
 }
@@ -115,17 +111,12 @@ void adaptationMCU(ImagePPM *image, int *nouvHauteur, int *nouvLargeur) {
     }
 }
 
-void afficheImageNB(ImagePPM* image, int hauteur, int largeur){
-    for (int i=0; i<hauteur; i++){
-        for(int j=0; j<largeur; j++){
-            printf("%02hhx ", image->pixelsNB[i][j]);
-        }
-        printf("\n");
-    }
-    printf("\n\n");
-}
-
-void libererPixels(ImagePPM* image, int hauteur){
+/**
+ * Libère les tableaux de pixels de l'image
+ * @param image
+ * @param hauteur
+ */
+void libererPixels(ImagePPM *image, int hauteur) {
     if (image->type == RGB) {
         libererPixelsRGB(image->pixelsRGB, hauteur);
     } else {
@@ -133,64 +124,16 @@ void libererPixels(ImagePPM* image, int hauteur){
     }
 }
 
-void libererPixelsRGB (PixelRGB** pixels, int hauteur){
+void libererPixelsRGB(PixelRGB **pixels, int hauteur) {
     for (int i = 0; i < hauteur; i++) {
         free(pixels[i]);
     }
     free(pixels);
 }
 
-void libererPixelsNB (PixelNB** pixels, int hauteur){
+void libererPixelsNB(PixelNB **pixels, int hauteur) {
     for (int i = 0; i < hauteur; i++) {
         free(pixels[i]);
     }
     free(pixels);
-}
-
-/**
- * Afiche tous les mcus d'une MCUsMAtrice
- * @param tabMcus
- */
-void afficherMCUs(MCUsMatrice *tabMcus) {
-    if (tabMcus->mcus[0].blocsRGB != NULL) {
-        for (int i = 0; i < tabMcus->nbcol * tabMcus->nblignes; i++) {
-            printf("MCU #%d\n", i);
-            afficherMCURGB(tabMcus->mcus[i]);
-            printf("\n\n");
-
-        }
-    } else {
-        for (int i = 0; i < tabMcus->nbcol * tabMcus->nblignes; i++) {
-            printf("MCU #%d\n", i);
-            afficherMCUNB(tabMcus->mcus[i]);
-            printf("\n\n");
-
-        }
-    }
-}
-
-/**
- * Affiche une MCU comprenant des pixels RGB
- * @param mcu
- */
-void afficherMCURGB(MCUPixels mcu) {
-    for (int i = 0; i < 64; i++) {
-        if (i % 8 == 0) {
-            printf("\n");
-        }
-        printf("%02hhx%02hhx%02hhx  ", mcu.blocsRGB[i].rouge, mcu.blocsRGB[i].vert, mcu.blocsRGB[i].bleu);
-    }
-}
-
-/**
- * Affiche une MCU comprenant des pixels nb
- * @param mcu
- */
-void afficherMCUNB(MCUPixels mcu) {
-    for (int i = 0; i < 64; i++) {
-        if (i % 8 == 0) {
-            printf("\n");
-        }
-        printf("%02hhx ", mcu.blocsNB[i]);
-    }
 }

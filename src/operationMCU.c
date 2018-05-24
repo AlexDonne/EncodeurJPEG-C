@@ -1,6 +1,4 @@
 #include "../include/operationMCU.h"
-#include <math.h>
-#include <string.h>
 
 /**
  * Transforme une MCU avec pixels RGB en MCUTransforme (avec Y, Cb, Cr)
@@ -102,9 +100,9 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
         for (int i = 0; i < mcusTransformMat->nbcol * mcusTransformMat->nblignes; ++i) {
             MCUTransform *intermediaire = malloc(sizeof(MCUTransform));
             test_malloc(intermediaire);
-            intermediaire->Cb = malloc(64* sizeof(int16_t));
+            intermediaire->Cb = malloc(64 * sizeof(int16_t));
             test_malloc(intermediaire->Cb);
-            intermediaire->Cr = malloc(64* sizeof(int16_t));
+            intermediaire->Cr = malloc(64 * sizeof(int16_t));
             test_malloc(intermediaire->Cr);
             intermediaire->tailleY = mcusTransformMat->mcus[i].tailleY;
             intermediaire->Y = malloc(intermediaire->tailleY * sizeof(int16_t));
@@ -125,7 +123,6 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
             libererIntermediaire(intermediaire);
         }
     }
-    //afficherAllMCUs(mcusTransformMat);
 }
 
 /**
@@ -152,7 +149,11 @@ void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *fin
     quantificationCbCr(final->Cr);
 }
 
-void libererIntermediaire (MCUTransform *intermediaire){
+/**
+ * Libère la MCUTransform intermédiaire utilisée
+ * @param intermediaire
+ */
+void libererIntermediaire(MCUTransform *intermediaire) {
     free(intermediaire->Cb);
     free(intermediaire->Cr);
     for (int i = 0; i < intermediaire->tailleY; ++i) {
@@ -178,51 +179,4 @@ void MCUToQuantifNB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *fina
         zigzag(dct_mcu->Y[i], final->Y[i]);
         quantificationY(final->Y[i]);
     }
-}
-
-/**
- * Affiche tous les MCUs
- * @param mcusTransformMat
- */
-void afficherAllMCUs(MCUsTransformMat *mcusTransformMat){
-    for (int i = 0; i < mcusTransformMat->nblignes * mcusTransformMat->nbcol; ++i) {
-        printf("MCU #%d\n",i);
-        afficher_mcu(mcusTransformMat->mcus[i]);
-    }
-}
-
-/**
- * Affiche un MCU
- * @param mcu
- */
-void afficher_mcu(MCUTransform mcu) {
-    for (int i = 0; i < mcu.tailleY; ++i) {
-        printf("Y%i\n", i);
-        for (int j = 0; j < 64; ++j) {
-            if (j%8 == 0){
-                printf("\n");
-            }
-            printf("%04hx ", mcu.Y[i][j]);
-        }
-        printf("\n\n");
-    }
-    if (mcu.Cb != NULL) {
-        printf("[Cb]\n");
-        for (int j = 0; j < 64; ++j) {
-            if (j%8 == 0){
-                printf("\n");
-            }
-            printf("%04hx  ", mcu.Cb[j]);
-        }
-        printf("\n\n");
-        printf("[Cr]\n");
-        for (int j = 0; j < 64; ++j) {
-            if (j%8 == 0){
-                printf("\n");
-            }
-            printf("%04hx  ", mcu.Cr[j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
 }

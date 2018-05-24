@@ -5,9 +5,16 @@
 #ifndef ETU_JPEG_WRITER_H
 #define ETU_JPEG_WRITER_H
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include "mon_bitstream.h"
+#include "qtables.h"
+#include "test_malloc.h"
+#include <string.h>
+
 /* Type énuméré représentant les composantes de couleur YCbCr. */
-enum color_component
-{
+enum color_component {
     Y,
     Cb,
     Cr,
@@ -18,8 +25,7 @@ enum color_component
     Type énuméré représentant les types de composantes fréquentielles (DC ou
     AC).
 */
-enum sample_type
-{
+enum sample_type {
     DC,
     AC,
     NB_SAMPLE_TYPES
@@ -29,8 +35,7 @@ enum sample_type
     Type énuméré représentant la direction des facteurs d'échantillonnage (H
     pour horizontal, V pour vertical).
 */
-enum direction
-{
+enum direction {
     H,
     V,
     NB_DIRECTIONS
@@ -41,8 +46,8 @@ enum direction
     l'écriture de l'entête JPEG.
 */
 struct jpeg_desc {
-    char *ppm_filename;
-    char *jpeg_filename;
+    const char *ppm_filename;
+    const char *jpeg_filename;
     char *commentaire;
     uint16_t height;
     uint16_t width;
@@ -58,9 +63,9 @@ struct jpeg_desc *jpeg_desc_create(void);
 
 void jpeg_desc_destroy(struct jpeg_desc *jdesc);
 
-void jpeg_desc_set_ppm_filename(struct jpeg_desc *jdesc, char *ppm_filename);
+void jpeg_desc_set_ppm_filename(struct jpeg_desc *jdesc, const char *ppm_filename);
 
-void jpeg_desc_set_jpeg_filename(struct jpeg_desc *jdesc, char *jpeg_filename);
+void jpeg_desc_set_jpeg_filename(struct jpeg_desc *jdesc, const char *jpeg_filename);
 
 void jpeg_desc_set_comment(struct jpeg_desc *jdesc, char *commentaire);
 
@@ -72,9 +77,11 @@ void jpeg_desc_set_image_width(struct jpeg_desc *jdesc, uint16_t image_width);
 
 void jpeg_desc_set_nb_components(struct jpeg_desc *jdesc, uint8_t nb_components);
 
-void jpeg_desc_set_sampling_factor(struct jpeg_desc *jdesc, enum color_component cc, enum direction dir, uint8_t sampling_factor);
+void jpeg_desc_set_sampling_factor(struct jpeg_desc *jdesc, enum color_component cc, enum direction dir,
+                                   uint8_t sampling_factor);
 
-void jpeg_desc_set_huffman_table(struct jpeg_desc *jdesc, enum sample_type acdc, enum color_component cc, uint8_t *htable, uint8_t nb_symbols);
+void jpeg_desc_set_huffman_table(struct jpeg_desc *jdesc, enum sample_type acdc, enum color_component cc,
+                                 uint8_t *htable, uint8_t nb_symbols);
 
 void ecrire_SOI(struct jpeg_desc *jdesc);
 
@@ -99,7 +106,6 @@ void jpeg_write_header(struct jpeg_desc *jdesc);
 void jpeg_write_footer(struct jpeg_desc *jdesc);
 
 struct bitstream *jpeg_desc_get_bitstream(struct jpeg_desc *jdesc);
-
 
 
 #endif //ETU_JPEG_WRITER_H
