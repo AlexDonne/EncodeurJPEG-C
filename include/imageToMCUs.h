@@ -2,23 +2,36 @@
 #define ETU_IMAGETOMCUS_H
 
 #include "structures.h"
+#include "test_malloc.h"
+#include "affichageStructures.h"
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
 
-MCUsMatrice* imageToMCUs(ImagePPM *image);
+/**
+ * Transforme la matrice de pixels de la structure image en un tableau de MCUs
+ * @param image
+ * @return
+ */
+MCUsMatrice *imageToMCUs(ImagePPM *image,  int l1);
 
-void adaptationMCU(ImagePPM* image, int *nouvHauteur, int *nouvLargeur);
+void adapterPourEchantillonageHorizontal(MCUsMatrice * mcusMatrice, TYPE_IMAGE type);
 
-void libererPixels(ImagePPM* image);
+/**
+ * Duplique les dernières lignes ou/et dernières colonnes pour avoir une hauteur et une largeur multiple de 8
+ * @param image
+ */
+void adaptationMCU(ImagePPM *image, int *nouvHauteur, int *nouvLargeur);
 
-void libererPixelsRGB (PixelRGB** pixels, int hauteur);
+/**
+ * Libère les tableaux de pixels de l'image
+ * @param image
+ * @param hauteur
+ */
+void libererPixels(ImagePPM *image, int hauteur);
 
-void afficheImageNB(ImagePPM* image, int hauteur, int largeur);
+void libererPixelsRGB(PixelRGB **pixels, int hauteur);
 
-void libererPixelsNB (PixelNB** pixels, int hauteur);
-
-void afficherMCUs(MCUsMatrice *tabMcus);
-
-void afficherMCURGB(MCUPixels mcu);
-
-void afficherMCUNB(MCUPixels mcu);
+void libererPixelsNB(PixelNB **pixels, int hauteur);
 
 #endif //ETU_IMAGETOMCUS_H

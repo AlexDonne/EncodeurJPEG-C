@@ -13,12 +13,12 @@ const uint8_t matrice_test[64] = {
 };
 
 
-void afficher_mcu(MCUTransform mcu){
+void afficher_mcu(MCUTransform mcu) {
     printf("MCU\n");
     for (int i = 0; i < mcu.tailleY; ++i) {
         printf("J%i\n", i);
-        for (int j = 0; j < 64 ; ++j) {
-            if(j%8 == 0){
+        for (int j = 0; j < 64; ++j) {
+            if (j % 8 == 0) {
                 printf("\n");
             }
             printf("%x ", mcu.Y[i][j]);
@@ -26,16 +26,16 @@ void afficher_mcu(MCUTransform mcu){
         printf("\n");
     }
     printf("Cb\n");
-    for (int j = 0; j < 64 ; ++j) {
-        if(j%8 == 0){
+    for (int j = 0; j < 64; ++j) {
+        if (j % 8 == 0) {
             printf("\n");
         }
         printf("%x ", mcu.Cb[j]);
     }
     printf("\n");
     printf("Cr\n");
-    for (int j = 0; j < 64 ; ++j) {
-        if(j%8 == 0){
+    for (int j = 0; j < 64; ++j) {
+        if (j % 8 == 0) {
             printf("\n");
         }
         printf("%x ", mcu.Cr[j]);
