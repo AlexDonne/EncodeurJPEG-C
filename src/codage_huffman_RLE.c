@@ -79,7 +79,7 @@ void ecrire_codage_AC_avec_RLE(struct bitstream *stream, int16_t *tab, enum colo
 
 
 struct bitstream *ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filename, const char *jpeg_filename,
-                                uint32_t image_height, uint32_t image_width, bool couleur) {
+                                uint32_t image_height, uint32_t image_width, bool couleur, int h1, int l1, int h2, int l2, int h3, int l3) {
     jpeg_desc_set_ppm_filename(jdesc, ppm_filename);
     jpeg_desc_set_jpeg_filename(jdesc, jpeg_filename);
     jpeg_desc_set_image_width(jdesc, image_width);
@@ -87,12 +87,12 @@ struct bitstream *ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filenam
     jpeg_desc_set_comment(jdesc, "<3 le projet C");
     if (couleur) {
         jpeg_desc_set_nb_components(jdesc, 3);
-        jpeg_desc_set_sampling_factor(jdesc, Y, H, 1);
-        jpeg_desc_set_sampling_factor(jdesc, Y, V, 1);
-        jpeg_desc_set_sampling_factor(jdesc, Cr, H, 1);
-        jpeg_desc_set_sampling_factor(jdesc, Cr, V, 1);
-        jpeg_desc_set_sampling_factor(jdesc, Cb, H, 1);
-        jpeg_desc_set_sampling_factor(jdesc, Cb, V, 1);
+        jpeg_desc_set_sampling_factor(jdesc, Y, H, h1);
+        jpeg_desc_set_sampling_factor(jdesc, Y, V, l1);
+        jpeg_desc_set_sampling_factor(jdesc, Cr, H, h2);
+        jpeg_desc_set_sampling_factor(jdesc, Cr, V, l2);
+        jpeg_desc_set_sampling_factor(jdesc, Cb, H, h3);
+        jpeg_desc_set_sampling_factor(jdesc, Cb, V, l3);
 
 
         jpeg_desc_set_huffman_table(jdesc, DC, Y,
@@ -134,19 +134,24 @@ struct bitstream *ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filenam
 }
 
 
-void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform) {
+void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform, int h1, int l1, int h2, int l2, int h3, int l3) {
     struct jpeg_desc *jdesc = jpeg_desc_create();
     if (image->type == RGB) {
         struct bitstream *stream = ecrire_entete(jdesc, image->chemin, image->nom, image->hauteur, image->largeur,
-                                                 true);
+                                                 true, h1, l1, h2, l2, h3, l3);
         int16_t dcy, dccb, dccr;
         for (int i = 0; i < mcusTransform->nbcol * mcusTransform->nblignes; ++i) {
 
             for (int j = 0; j < mcusTransform->mcus[i].tailleY; ++j) {
-                if (i == 0) {
+                if (i == 0 && j == 0) {
                     dcy = mcusTransform->mcus[i].Y[j][0];
                 } else {
-                    dcy = mcusTransform->mcus[i].Y[j][0] - mcusTransform->mcus[i - 1].Y[j][0];
+                    if (j == 0) {
+                        dcy = mcusTransform->mcus[i].Y[j][0] -
+                              mcusTransform->mcus[i - 1].Y[mcusTransform->mcus[i].tailleY - 1][0];
+                    } else {
+                        dcy = mcusTransform->mcus[i].Y[j][0] - mcusTransform->mcus[i].Y[j - 1][0];
+                    }
                 }
                 ecrire_codage_differenciel_DC(stream, dcy, Y);
                 ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Y[j], Y);
@@ -154,45 +159,59 @@ void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform) {
 
 
             for (int k = 0; k < mcusTransform->mcus[i].tailleCb; ++k) {
-                if (i == 0) {
+                if (i == 0 && k == 0) {
+
                     dccb = mcusTransform->mcus[i].Cb[k][0];
                 } else {
-                    dccb = mcusTransform->mcus[i].Cb[k][0] - mcusTransform->mcus[i - 1].Cb[k][0];
+                    if (k == 0) {
+                        dccb = mcusTransform->mcus[i].Cb[k][0] -
+                               mcusTransform->mcus[i - 1].Y[mcusTransform->mcus[i].tailleCb - 1][0];
+                    } else {
+                        dccb = mcusTransform->mcus[i].Cb[k][0] - mcusTransform->mcus[i].Cb[k - 1][0];
+
+                    }
                 }
                 ecrire_codage_differenciel_DC(stream, dccb, Cb);
                 ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Cb[k], Cb);
             }
 
-            for (int k = 0; k < mcusTransform->mcus[i].tailleCr; ++k) {
-                if (i == 0) {
-                    dccr = mcusTransform->mcus[i].Cr[k][0];
+            for (int l = 0; l < mcusTransform->mcus[i].tailleCr; ++l) {
+                if (i == 0 && l == 0) {
+                    dccr = mcusTransform->mcus[i].Cr[l][0];
+
                 } else {
-                    dccr = mcusTransform->mcus[i].Cr[k][0] - mcusTransform->mcus[i - 1].Cr[k][0];
+                    if (l == 0) {
+                        dccr = mcusTransform->mcus[i].Cr[l][0] -
+                               mcusTransform->mcus[i - 1].Y[mcusTransform->mcus[i].tailleCr - 1][0];
+                    } else {
+                        dccr = mcusTransform->mcus[i].Cr[l][0] - mcusTransform->mcus[i].Cr[l - 1][0];
+
+                    }
                 }
                 ecrire_codage_differenciel_DC(stream, dccr, Cr);
-                ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Cr[k], Cr);
+                ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Cr[l], Cr);
             }
 
         }
     } else {
-        struct bitstream *stream = ecrire_entete(jdesc, image->nom, image->nom, image->hauteur, image->largeur, false);
-        int16_t dc;
+        struct bitstream *stream = ecrire_entete(jdesc, image->nom, image->nom, image->hauteur, image->largeur, false, h1, l1, h2, l2, h3, l3);
+        int16_t dcy;
         for (int i = 0; i < mcusTransform->nbcol * mcusTransform->nblignes; ++i) {
-            for (int j = 0; j < mcusTransform->mcus[i].tailleY; ++j) {
-                if (i == 0) {
-                    dc = mcusTransform->mcus[i].Y[j][0];
-                } else {
-                    dc = mcusTransform->mcus[i].Y[j][0] - mcusTransform->mcus[i - 1].Y[j][0];
-                }
-                ecrire_codage_differenciel_DC(stream, dc, Y);
-                ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Y[j], Y);
+            if (i == 0) {
+                dcy = mcusTransform->mcus[i].Y[0][0];
+            } else {
+                dcy = mcusTransform->mcus[i].Y[0][0] -
+                      mcusTransform->mcus[i - 1].Y[0][0];
             }
+            ecrire_codage_differenciel_DC(stream, dcy, Y);
+            ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Y[0], Y);
         }
+
+        libererImage(image);
+        libererMCUsTransform(mcusTransform);
+        jpeg_write_footer(jdesc);
+        jpeg_desc_destroy(jdesc);
     }
-    libererImage(image);
-    libererMCUsTransform(mcusTransform);
-    jpeg_write_footer(jdesc);
-    jpeg_desc_destroy(jdesc);
 }
 
 /**

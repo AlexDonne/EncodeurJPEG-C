@@ -5,6 +5,7 @@
 #include "../include/imageToMCUs.h"
 #include "../include/operationMCU.h"
 #include "../include/codage_huffman_RLE.h"
+#include "../include/echantillonnage.h"
 
 /**
  * Traite les paramètres d'échantillonage
@@ -64,8 +65,11 @@ int main(int argc, char *argv[]) {
         paramEchantillonage(echantillon, &h1, &l1, &h2, &l2, &h3, &l3);
     }
     MCUsMatrice *mat = imageToMCUs(image, l1);
-    MCUsTransformMat *mcusTransform = rgbTOycbcrAllMcus(mat);
+    MCUsMatrice *fusion_mat = fusion_RGB(mat, h1, l1);
+    MCUsTransformMat *mcusTransform = rgbTOycbcrAllMcus(fusion_mat, h1, l1);
+    mcusTransform = echantillonnage(mcusTransform, h1, l1, h2, l2, h3, l3);
     MCUsTransformToQuantif(mcusTransform);
-    ecrire_jpeg(image, mcusTransform);
+    afficherAllMCUsTransform(mcusTransform);
+    ecrire_jpeg(image, mcusTransform, h1, l1, h2, l2, h3, l3);
     exit(EXIT_SUCCESS);
 }

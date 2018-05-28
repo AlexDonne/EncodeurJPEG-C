@@ -18,13 +18,12 @@ void ecrire_codage_huffman(struct bitstream *stream, uint32_t nombre, enum sampl
 
 void magnitude_indice(int16_t nombre, uint8_t *magnitude, uint16_t *indice);
 
+struct bitstream *ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filename, const char *jpeg_filename,
+                                uint32_t image_height, uint32_t image_width, bool couleur, int h1, int l1, int h2, int l2, int h3, int l3);
+
 void ecrire_codage_AC_avec_RLE(struct bitstream *stream, int16_t *tab, enum color_component cc);
 
-struct bitstream *
-ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filename, const char *jpeg_filename, uint32_t image_height,
-              uint32_t image_width, bool couleur);
-
-void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform);
+void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform, int h1, int l1, int h2, int l2, int h3, int l3);
 
 void libererImage(ImagePPM *image);
 
