@@ -8,24 +8,34 @@
 MCUTransform rgbTOycbcr(MCUPixels mcuPixels) {
     MCUTransform mcuTransform;
     mcuTransform.tailleY = 1;
+    mcuTransform.tailleCb = 1;
+    mcuTransform.tailleCr = 1;
     mcuTransform.Y = malloc(sizeof(int16_t));
     test_malloc(mcuTransform.Y);
     mcuTransform.Y[0] = malloc(64 * sizeof(int16_t));
     test_malloc(mcuTransform.Y[0]);
-    mcuTransform.Cb = malloc(64 * sizeof(int16_t));
+
+
+    mcuTransform.Cb = malloc(sizeof(int16_t));
     test_malloc(mcuTransform.Cb);
-    mcuTransform.Cr = malloc(64 * sizeof(int16_t));
+    mcuTransform.Cb[0] = malloc(64 * sizeof(int16_t));
+    test_malloc(mcuTransform.Cb[0]);
+
+    mcuTransform.Cr = malloc(sizeof(int16_t));
     test_malloc(mcuTransform.Cr);
+    mcuTransform.Cr[0] = malloc(64 * sizeof(int16_t));
+    test_malloc(mcuTransform.Cr[0]);
+
     for (int j = 0; j < 64; ++j) {
         mcuTransform.Y[0][j] = round(0.299 * mcuPixels.blocsRGB[j].rouge
                                      + 0.587 * mcuPixels.blocsRGB[j].vert
                                      + 0.114 * mcuPixels.blocsRGB[j].bleu);
 
-        mcuTransform.Cb[j] = round(-0.1687 * mcuPixels.blocsRGB[j].rouge
+        mcuTransform.Cb[0][j] = round(-0.1687 * mcuPixels.blocsRGB[j].rouge
                                    - 0.3313 * mcuPixels.blocsRGB[j].vert
                                    + 0.5 * mcuPixels.blocsRGB[j].bleu + 128);
 
-        mcuTransform.Cr[j] = round(0.5 * mcuPixels.blocsRGB[j].rouge
+        mcuTransform.Cr[0][j] = round(0.5 * mcuPixels.blocsRGB[j].rouge
                                    - 0.4187 * mcuPixels.blocsRGB[j].vert
                                    - 0.0813 * mcuPixels.blocsRGB[j].bleu + 128);
 
@@ -100,10 +110,15 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
         for (int i = 0; i < mcusTransformMat->nbcol * mcusTransformMat->nblignes; ++i) {
             MCUTransform *intermediaire = malloc(sizeof(MCUTransform));
             test_malloc(intermediaire);
-            intermediaire->Cb = malloc(64 * sizeof(int16_t));
+
+            intermediaire->tailleCb = mcusTransformMat->mcus[i].tailleCb;
+            intermediaire->Cb = malloc(intermediaire->tailleCb * sizeof(int16_t));
             test_malloc(intermediaire->Cb);
-            intermediaire->Cr = malloc(64 * sizeof(int16_t));
+
+            intermediaire->tailleCr = mcusTransformMat->mcus[i].tailleCr;
+            intermediaire->Cr = malloc(intermediaire->tailleCr * sizeof(int16_t));
             test_malloc(intermediaire->Cr);
+
             intermediaire->tailleY = mcusTransformMat->mcus[i].tailleY;
             intermediaire->Y = malloc(intermediaire->tailleY * sizeof(int16_t));
             test_malloc(intermediaire->Y);
@@ -141,12 +156,28 @@ void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *fin
         zigzag(dct_mcu->Y[i], final->Y[i]);
         quantificationY(final->Y[i]);
     }
-    discrete_cosinus_transform(mcu->Cb, dct_mcu->Cb);
-    discrete_cosinus_transform(mcu->Cr, dct_mcu->Cr);
-    zigzag(dct_mcu->Cb, final->Cb);
-    zigzag(dct_mcu->Cr, final->Cr);
-    quantificationCbCr(final->Cb);
-    quantificationCbCr(final->Cr);
+    for (int j = 0; j < mcu->tailleCb; ++j) {
+        dct_mcu->Cb[j] = calloc(64, sizeof(int16_t));
+        test_malloc(dct_mcu->Cb[j]);
+        discrete_cosinus_transform(mcu->Cb[j], dct_mcu->Cb[j]);
+        free(final->Cb[j]);
+        final->Cb[j] = calloc(64, sizeof(int16_t));
+        test_malloc(final->Cb[j]);
+        zigzag(dct_mcu->Cb[j], final->Cb[j]);
+        quantificationCbCr(final->Cb[j]);
+    }
+
+    for (int k = 0; k < mcu->tailleCr; ++k) {
+        dct_mcu->Cr[k] = calloc(64, sizeof(int16_t));
+        test_malloc(dct_mcu->Cr[k]);
+        discrete_cosinus_transform(mcu->Cr[k], dct_mcu->Cr[k]);
+        free(final->Cr[k]);
+        final->Cr[k] = calloc(64, sizeof(int16_t));
+        test_malloc(final->Cr[k]);
+        zigzag(dct_mcu->Cr[k], final->Cr[k]);
+        quantificationCbCr(final->Cr[k]);
+    }
+
 }
 
 /**
@@ -154,8 +185,16 @@ void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *fin
  * @param intermediaire
  */
 void libererIntermediaire(MCUTransform *intermediaire) {
-    free(intermediaire->Cb);
-    free(intermediaire->Cr);
+    if (intermediaire->Cb != NULL) {
+        for (int i = 0; i < intermediaire->tailleCb; ++i) {
+            free(intermediaire->Cb[i]);
+        }
+        free(intermediaire->Cb);
+        for (int i = 0; i < intermediaire->tailleCr; ++i) {
+            free(intermediaire->Cr[i]);
+        }
+        free(intermediaire->Cr);
+    }
     for (int i = 0; i < intermediaire->tailleY; ++i) {
         free(intermediaire->Y[i]);
     }
