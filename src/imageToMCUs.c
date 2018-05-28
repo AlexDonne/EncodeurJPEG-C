@@ -62,6 +62,12 @@ MCUsMatrice *imageToMCUs(ImagePPM *image, int l1) {
 }
 
 //TODO: free l'ancien
+
+/**
+ * Si l'échantillonage est par deux mais que le nombre de lignes de la matrice des MCUs n'est pas pair, on rajoute une ligne de MCUs en bas.
+ * @param mcusMatrice
+ * @param type
+ */
 void adapterPourEchantillonageHorizontal(MCUsMatrice *mcusMatrice, TYPE_IMAGE type) {
     MCUPixels *nouv = realloc(mcusMatrice->mcus,
                               (mcusMatrice->nblignes + 1) * mcusMatrice->nbcol * sizeof(MCUPixels));
@@ -90,8 +96,7 @@ void adapterPourEchantillonageHorizontal(MCUsMatrice *mcusMatrice, TYPE_IMAGE ty
             }
             nouv[ind] = mcu;
         }
-    }
-    else {
+    } else {
         for (int i = 0, ind = mcusMatrice->nblignes * mcusMatrice->nbcol; i < mcusMatrice->nbcol; ++i, ++ind) {
             MCUPixels mcu;
             mcu.blocsNB = malloc(64 * sizeof(PixelNB));

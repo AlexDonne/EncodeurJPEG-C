@@ -10,18 +10,18 @@ MCUTransform rgbTOycbcr(MCUPixels mcuPixels) {
     mcuTransform.tailleY = 1;
     mcuTransform.tailleCb = 1;
     mcuTransform.tailleCr = 1;
-    mcuTransform.Y = malloc(sizeof(int16_t));
+    mcuTransform.Y = malloc(sizeof(void *));
     test_malloc(mcuTransform.Y);
     mcuTransform.Y[0] = malloc(64 * sizeof(int16_t));
     test_malloc(mcuTransform.Y[0]);
 
 
-    mcuTransform.Cb = malloc(sizeof(int16_t));
+    mcuTransform.Cb = malloc(sizeof(void *));
     test_malloc(mcuTransform.Cb);
     mcuTransform.Cb[0] = malloc(64 * sizeof(int16_t));
     test_malloc(mcuTransform.Cb[0]);
 
-    mcuTransform.Cr = malloc(sizeof(int16_t));
+    mcuTransform.Cr = malloc(sizeof(void *));
     test_malloc(mcuTransform.Cr);
     mcuTransform.Cr[0] = malloc(64 * sizeof(int16_t));
     test_malloc(mcuTransform.Cr[0]);
@@ -32,12 +32,12 @@ MCUTransform rgbTOycbcr(MCUPixels mcuPixels) {
                                      + 0.114 * mcuPixels.blocsRGB[j].bleu);
 
         mcuTransform.Cb[0][j] = round(-0.1687 * mcuPixels.blocsRGB[j].rouge
-                                   - 0.3313 * mcuPixels.blocsRGB[j].vert
-                                   + 0.5 * mcuPixels.blocsRGB[j].bleu + 128);
+                                      - 0.3313 * mcuPixels.blocsRGB[j].vert
+                                      + 0.5 * mcuPixels.blocsRGB[j].bleu + 128);
 
         mcuTransform.Cr[0][j] = round(0.5 * mcuPixels.blocsRGB[j].rouge
-                                   - 0.4187 * mcuPixels.blocsRGB[j].vert
-                                   - 0.0813 * mcuPixels.blocsRGB[j].bleu + 128);
+                                      - 0.4187 * mcuPixels.blocsRGB[j].vert
+                                      - 0.0813 * mcuPixels.blocsRGB[j].bleu + 128);
 
     }
     return mcuTransform;
@@ -51,13 +51,15 @@ MCUTransform rgbTOycbcr(MCUPixels mcuPixels) {
 MCUTransform nbTOy(MCUPixels mcuPixels) {
     MCUTransform mcuTransform;
     mcuTransform.tailleY = 1;
-    mcuTransform.Y = malloc(sizeof(int16_t));
+    mcuTransform.Y = malloc(sizeof(void *));
     test_malloc(mcuTransform.Y);
     mcuTransform.Y[0] = malloc(64 * sizeof(int16_t));
     test_malloc(mcuTransform.Y[0]);
     for (int j = 0; j < 64; ++j) {
         mcuTransform.Y[0][j] = (uint16_t) mcuPixels.blocsNB[j];
     }
+    mcuTransform.Cb = NULL;
+    mcuTransform.Cr = NULL;
     return mcuTransform;
 }
 
@@ -112,15 +114,15 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
             test_malloc(intermediaire);
 
             intermediaire->tailleCb = mcusTransformMat->mcus[i].tailleCb;
-            intermediaire->Cb = malloc(intermediaire->tailleCb * sizeof(int16_t));
+            intermediaire->Cb = malloc(intermediaire->tailleCb * sizeof(void *));
             test_malloc(intermediaire->Cb);
 
             intermediaire->tailleCr = mcusTransformMat->mcus[i].tailleCr;
-            intermediaire->Cr = malloc(intermediaire->tailleCr * sizeof(int16_t));
+            intermediaire->Cr = malloc(intermediaire->tailleCr * sizeof(void *));
             test_malloc(intermediaire->Cr);
 
             intermediaire->tailleY = mcusTransformMat->mcus[i].tailleY;
-            intermediaire->Y = malloc(intermediaire->tailleY * sizeof(int16_t));
+            intermediaire->Y = malloc(intermediaire->tailleY * sizeof(void *));
             test_malloc(intermediaire->Y);
             MCUToQuantifRGB(&(mcusTransformMat->mcus[i]), intermediaire);
             libererIntermediaire(&(mcusTransformMat->mcus[i]));
@@ -134,7 +136,7 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
             intermediaire->Cb = NULL;
             intermediaire->Cr = NULL;
             intermediaire->tailleY = mcusTransformMat->mcus[i].tailleY;
-            intermediaire->Y = malloc(intermediaire->tailleY * sizeof(int16_t));
+            intermediaire->Y = malloc(intermediaire->tailleY * sizeof(void *));
             test_malloc(intermediaire->Y);
             MCUToQuantifNB(&(mcusTransformMat->mcus[i]), intermediaire);
             libererIntermediaire(&(mcusTransformMat->mcus[i]));

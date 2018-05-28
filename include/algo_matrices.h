@@ -15,12 +15,10 @@
 void zigzag(int16_t *matrice, int16_t *zig_matrice);
 
 /**
- * Applique le DCT sur une matrice
+ * Applique le DCT sur une matrice, en évitant les calculs de cosinus
  * @param matrice
  * @param dct_matrice
  */
-void discrete_cosinus_transform(int16_t *matrice, int16_t *dct_matrice);
-
 void fast_discrete_cosinus_transform(int16_t *matrice);
 
 /**
