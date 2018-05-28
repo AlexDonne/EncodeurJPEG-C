@@ -19,21 +19,21 @@
  * @param mcuPixels
  * @return
  */
-MCUTransform rgbTOycbcr(MCUPixels mcuPixels);
+MCUTransform rgbTOycbcr(MCUPixels mcuPixels, int h1, int l1);
 
 /**
  * Transforme une structure MCUsMatrice (tableau avec tous les MCUPixels) en MCUsTransformMat (tableau avec les MCUS Y, Cb, Cr)
  * @param mcusMat
  * @return
  */
-MCUsTransformMat *rgbTOycbcrAllMcus(MCUsMatrice *mcusMat);
+MCUsTransformMat *rgbTOycbcrAllMcus(MCUsMatrice *mcusMat, int h1, int l1);
 
 /**
  * Transforme une MCU avec pixels Noirs et blanc en MCUTransform avec Y, et CB et Cr qui sont NULL
  * @param mcuPixels
  * @return
  */
-MCUTransform nbTOy(MCUPixels mcuPixels);
+MCUTransform nbTOy(MCUPixels mcuPixels, int h1, int l1);
 
 /**
  * Libère l'espace mémoire occupée par une structure MCUsMatrice

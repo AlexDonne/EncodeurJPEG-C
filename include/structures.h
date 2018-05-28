@@ -34,8 +34,9 @@ typedef struct imagePPM {
  * Structure pour un MCU, si en couleur alors blocsNB est NULL, et réciproquement
  */
 typedef struct mcupixel {
-    PixelRGB *blocsRGB;
-    PixelNB *blocsNB;
+    PixelRGB **blocsRGB;
+    PixelNB **blocsNB;
+    int tailleBlocs;
 } MCUPixels;
 
 /**
@@ -51,7 +52,7 @@ typedef struct mcusMatrice {
  * Structure pour représenter un MCU comprenant le Y, Cb, CR
  * Y un tableau pour échantillonage
  */
-typedef struct mcuTransform {
+typedef struct mcuTransform{
     int16_t **Y;
     int tailleY;
     int16_t **Cb;
@@ -59,7 +60,7 @@ typedef struct mcuTransform {
     int tailleCb;
     int tailleCr;
 
-} MCUTransform;
+}MCUTransform;
 
 /**
  * Structure pour le tableau des MCUsTransform, avec nombre lignes et nombre colonnes (nécessaire pour échantillonage)

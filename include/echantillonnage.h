@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include "structures.h"
 
+MCUsMatrice *fusion_RGB(MCUsMatrice *mcus_rgb, int h1, int l1);
+
 MCUsTransformMat *fusion_mcu(MCUsTransformMat *matmcu, int h1, int l1);
 
 void echan_h(int16_t *mat1, int16_t *mat2, int16_t *echan_mat);

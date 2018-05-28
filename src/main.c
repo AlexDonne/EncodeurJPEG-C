@@ -58,11 +58,12 @@ int main(int argc, char *argv[]) {
     }
 
     MCUsMatrice *mat = imageToMCUs(image, l1);
-    exit(1);
-    MCUsTransformMat *mcusTransform = rgbTOycbcrAllMcus(mat);
+    MCUsMatrice *fusion_mat = fusion_RGB(mat, h1, l1);
+    afficherMCUsMatrice(fusion_mat);
+    MCUsTransformMat *mcusTransform = rgbTOycbcrAllMcus(fusion_mat, h1, l1);
     MCUsTransformMat *nouv = malloc(sizeof(MCUsTransformMat));
-    echantillonnage(mcusTransform, nouv, 1, 2, 1, 1, 1, 1);
-   afficherAllMCUs2(nouv);
+    echantillonnage(mcusTransform, nouv, h1, l1, h2, l2, h3, l3);
+    afficherAllMCUsTransform(nouv);
 //    MCUsTransformToQuantif(mcusTransform);
 //    ecrire_jpeg(image, mcusTransform);
 }

@@ -138,40 +138,54 @@ void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform) {
     if (image->type == RGB) {
         struct bitstream *stream = ecrire_entete(jdesc, image->chemin, image->nom, image->hauteur, image->largeur,
                                                  true);
+        int16_t dcy, dccb, dccr;
         for (int i = 0; i < mcusTransform->nbcol * mcusTransform->nblignes; ++i) {
-            int16_t dcy, dccr, dccb;
-            if (i == 0) {
-                dcy = mcusTransform->mcus[i].Y[0][0];
-                dccr = mcusTransform->mcus[i].Cr[0];
-                dccb = mcusTransform->mcus[i].Cb[0];
-            } else {
-                dcy = mcusTransform->mcus[i].Y[0][0] - mcusTransform->mcus[i - 1].Y[0][0];
-                dccr = mcusTransform->mcus[i].Cr[0] - mcusTransform->mcus[i - 1].Cr[0];
-                dccb = mcusTransform->mcus[i].Cb[0] - mcusTransform->mcus[i - 1].Cb[0];
+
+            for (int j = 0; j < mcusTransform->mcus[i].tailleY; ++j) {
+                if (i == 0) {
+                    dcy = mcusTransform->mcus[i].Y[j][0];
+                } else {
+                    dcy = mcusTransform->mcus[i].Y[j][0] - mcusTransform->mcus[i - 1].Y[j][0];
+                }
+                ecrire_codage_differenciel_DC(stream, dcy, Y);
+                ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Y[j], Y);
             }
 
-            ecrire_codage_differenciel_DC(stream, dcy, Y);
-            ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Y[0], Y);
 
+            for (int k = 0; k < mcusTransform->mcus[i].tailleCb; ++k) {
+                if (i == 0) {
+                    dccb = mcusTransform->mcus[i].Cb[k][0];
+                } else {
+                    dccb = mcusTransform->mcus[i].Cb[k][0] - mcusTransform->mcus[i - 1].Cb[k][0];
+                }
+                ecrire_codage_differenciel_DC(stream, dccb, Cb);
+                ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Cb[k], Cb);
+            }
 
-            ecrire_codage_differenciel_DC(stream, dccb, Cb);
-            ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Cb, Cb);
-
-            ecrire_codage_differenciel_DC(stream, dccr, Cr);
-            ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Cr, Cr);
+            for (int k = 0; k < mcusTransform->mcus[i].tailleCr; ++k) {
+                if (i == 0) {
+                    dccr = mcusTransform->mcus[i].Cr[k][0];
+                } else {
+                    dccr = mcusTransform->mcus[i].Cr[k][0] - mcusTransform->mcus[i - 1].Cr[k][0];
+                }
+                ecrire_codage_differenciel_DC(stream, dccr, Cr);
+                ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Cr[k], Cr);
+            }
 
         }
     } else {
         struct bitstream *stream = ecrire_entete(jdesc, image->nom, image->nom, image->hauteur, image->largeur, false);
+        int16_t dc;
         for (int i = 0; i < mcusTransform->nbcol * mcusTransform->nblignes; ++i) {
-            int16_t dc;
-            if (i == 0) {
-                dc = mcusTransform->mcus[i].Y[0][0];
-            } else {
-                dc = mcusTransform->mcus[i].Y[0][0] - mcusTransform->mcus[i - 1].Y[0][0];
+            for (int j = 0; j < mcusTransform->mcus[i].tailleY; ++j) {
+                if (i == 0) {
+                    dc = mcusTransform->mcus[i].Y[j][0];
+                } else {
+                    dc = mcusTransform->mcus[i].Y[j][0] - mcusTransform->mcus[i - 1].Y[j][0];
+                }
+                ecrire_codage_differenciel_DC(stream, dc, Y);
+                ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Y[j], Y);
             }
-            ecrire_codage_differenciel_DC(stream, dc, Y);
-            ecrire_codage_AC_avec_RLE(stream, mcusTransform->mcus[i].Y[0], Y);
         }
     }
     libererImage(image);
@@ -203,7 +217,13 @@ void libererMCUTransform(MCUTransform *mcuTransform) {
     }
     free(mcuTransform->Y);
     if (mcuTransform->Cb != NULL) {
+        for (int i = 0; i < mcuTransform->tailleCb; ++i) {
+            free(mcuTransform->Cb[i]);
+        }
         free(mcuTransform->Cb);
+        for (int i = 0; i < mcuTransform->tailleCr; ++i) {
+            free(mcuTransform->Cr[i]);
+        }
         free(mcuTransform->Cr);
     }
 }

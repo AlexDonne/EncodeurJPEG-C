@@ -1,10 +1,123 @@
 #include "../include/structures.h"
 #include "../include/echantillonnage.h"
 #include <math.h>
-MCUsTransformMat *fusion_mcu(MCUsTransformMat *matmcu, int h1, int l1) {
+
+MCUsMatrice *fusion_RGB(MCUsMatrice *mcus_rgb, int h1, int l1){
     if (h1 == 1 && l1 == 1) {
-        return matmcu;
+
+        return mcus_rgb;
     } else {
+        MCUsMatrice *fusionmatrgb = malloc(sizeof(MCUsMatrice));
+        fusionmatrgb->nbcol = mcus_rgb->nbcol / h1;
+        fusionmatrgb->nblignes = mcus_rgb->nblignes / l1;
+        fusionmatrgb->mcus = malloc(fusionmatrgb->nbcol * fusionmatrgb->nblignes * sizeof(MCUPixels));
+        if(mcus_rgb->mcus[0].blocsRGB != NULL){
+            for (int i = 0; i < fusionmatrgb->nblignes; ++i) {
+                for (int j = 0; j < fusionmatrgb->nbcol; ++j) {
+                    fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB = malloc(h1 * l1 * sizeof(void*));
+                    fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsNB = NULL;
+
+                    for (int k = 0; k < h1 * l1; ++k) {
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB[k] = malloc(64 * sizeof(PixelRGB));
+                    }
+
+                  /*  for (int l = 0; l < h1 * l1; l+=2) {
+                        if(l>1) {
+                            fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB[l] = mcus_rgb->mcus[
+                                    (l1 * i +1) * mcus_rgb->nbcol + h1 * j].blocsRGB[0];
+                            fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB[l+1] = mcus_rgb->mcus[
+                                    (l1 * i + 1) * mcus_rgb->nbcol + h1 * j + 1].blocsRGB[0];
+                        }else {
+                            fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB[l] = mcus_rgb->mcus[
+                                    l1 * i * mcus_rgb->nbcol + h1 * j].blocsRGB[0];
+                            fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB[l+1] = mcus_rgb->mcus[
+                                    l1 * i * mcus_rgb->nbcol + h1 * j].blocsRGB[0];
+                        }
+                    }*/
+
+                    if (h1 == 2 && l1 == 1) {
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB[0] = mcus_rgb->mcus[i * mcus_rgb->nbcol + 2 * j].blocsRGB[0];
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB[1] = mcus_rgb->mcus[i * mcus_rgb->nbcol + 2 * j +
+                                                                                            1].blocsRGB[0];
+                        fusionmatrgb->mcus[i* fusionmatrgb->nbcol + j].tailleBlocs = 2;
+                    }
+                    if(h1==2 && l1 == 2) {
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB[0] = mcus_rgb->mcus[
+                                (2 * i) * mcus_rgb->nbcol +
+                                2 * j].blocsRGB[0];
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB[1] = mcus_rgb->mcus[
+                                (2 * i) * mcus_rgb->nbcol +
+                                2 * j + 1].blocsRGB[0];
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB[2] = mcus_rgb->mcus[
+                                (2 * i + 1) * mcus_rgb->nbcol +
+                                2 * j].blocsRGB[0];
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB[3] = mcus_rgb->mcus[
+                                (2 * i + 1) * mcus_rgb->nbcol +
+                                2 * j + 1].blocsRGB[0];
+
+                        fusionmatrgb->mcus[i* fusionmatrgb->nbcol + j].tailleBlocs = 4;
+
+                    }
+                    if(h1==1 && l1==2) {
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB[0] = mcus_rgb->mcus[
+                                2 * i * mcus_rgb->nbcol +
+                                j].blocsRGB[0];
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB[1] = mcus_rgb->mcus[
+                                (2 * i + 1) * mcus_rgb->nbcol
+                                + j].blocsRGB[0];
+                        fusionmatrgb->mcus[i* fusionmatrgb->nbcol + j].tailleBlocs = 2;
+
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < fusionmatrgb->nblignes; ++i) {
+                for (int j = 0; j < fusionmatrgb->nbcol; ++j) {
+                    fusionmatrgb->mcus[i*fusionmatrgb->nbcol + j].tailleBlocs = h1*l1;
+                    fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsNB = malloc(h1 * l1 * sizeof(int16_t));
+                    fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB = NULL;
+
+                    for (int k = 0; k < h1 * l1; ++k) {
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsNB[k] = malloc(64 * sizeof(PixelNB));
+                    }
+                    if (h1 == 2 && l1 == 1) {
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsNB[0] = mcus_rgb->mcus[
+                                i * mcus_rgb->nbcol + 2 * j].blocsNB[0];
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsNB[1] = mcus_rgb->mcus[
+                                i * mcus_rgb->nbcol + 2 * j +
+                                1].blocsNB[0];
+                    }
+                    if (h1 == 2 && l1 == 2) {
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsNB[0] = mcus_rgb->mcus[
+                                (2 * i) * mcus_rgb->nbcol +
+                                2 * j].blocsNB[0];
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsNB[1] = mcus_rgb->mcus[
+                                (2 * i) * mcus_rgb->nbcol +
+                                2 * j + 1].blocsNB[0];
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsNB[2] = mcus_rgb->mcus[
+                                (2 * i + 1) * mcus_rgb->nbcol +
+                                2 * j].blocsNB[0];
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsNB[3] = mcus_rgb->mcus[
+                                (2 * i + 1) * mcus_rgb->nbcol +
+                                2 * j + 1].blocsNB[0];
+                    }
+                    if (h1 == 1 && l1 == 2) {
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsNB[0] = mcus_rgb->mcus[
+                                2 * i * mcus_rgb->nbcol +
+                                j].blocsNB[0];
+                        fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsNB[1] = mcus_rgb->mcus[
+                                (2 * i + 1) * mcus_rgb->nbcol
+                                + j].blocsNB[0];
+                    }
+                }
+            }
+        }
+    return fusionmatrgb;
+    }
+}
+
+/*MCUsTransformMat *fusion_mcu(MCUsTransformMat *matmcu, int h1, int l1) {
+
         MCUsTransformMat *fusionmatmcu = malloc(sizeof(MCUsTransformMat));
         if (h1 == 2 && l1 == 1) {
             fusionmatmcu->nbcol = matmcu->nbcol / 2;
@@ -128,7 +241,7 @@ MCUsTransformMat *fusion_mcu(MCUsTransformMat *matmcu, int h1, int l1) {
         }
         return fusionmatmcu;
     }
-}
+}*/
 void echan_h(int16_t *mat1, int16_t *mat2, int16_t *echan_mat) {
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
@@ -145,7 +258,7 @@ void echan_v(int16_t *mat1, int16_t *mat2, int16_t *echan_mat){
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
             if (i<4) {
-                echan_mat[i * 8 + j] = round((mat1[2*i * 8 + j] + mat1[2*(i+1) * 8 + j])) / 2;
+                echan_mat[i * 8 + j] = round((mat1[2*i * 8 + j] + mat1[(2*i+1) * 8 + j])) / 2;
             } else {
                 echan_mat[i * 8 + j] = round((mat2[2*(i-4) * 8 + j] + mat2[(2*(i-4)+1) * 8 + j])) / 2;
             }
@@ -261,19 +374,25 @@ void mcu_echantillonnage(MCUTransform *mcu, MCUTransform *echan_mcu, int h1, int
             echan_h_v(mcu->Cb[0],
                       mcu->Cb[1], mcu->Cb[2], mcu->Cb[3],
                       echan_mcu->Cb[0]);
-            }
+        }
+        if(h2 == 2 && l2 == 1){
+            echan_v(mcu->Cb[0],mcu->Cb[2], echan_mcu->Cb[0]);
+            echan_v(mcu->Cb[1],mcu->Cb[3], echan_mcu->Cb[1]);
+        }
+        if(h3 == 2 && l3 == 1){
+            echan_v(mcu->Cr[0],mcu->Cr[2], echan_mcu->Cr[0]);
+            echan_v(mcu->Cr[1],mcu->Cr[3], echan_mcu->Cr[1]);
+        }
+
         else{
             printf("echantillonnage non gere par l'encodeur");
         }
-    } else {
-        printf("Taille du mcu incompatible");
     }
 }
 
 
 
 void mat_mcu_echantillonnage(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu, int h1, int l1, int h2, int l2, int h3, int l3) {
-    afficherAllMCUs2(matmcu);
     for (int i = 0; i < matmcu->nblignes*matmcu->nbcol; ++i) {
         mcu_echantillonnage(&(matmcu->mcus[i]), &(echan_matmcu->mcus[i]), h1, l1, h2, l2, h3, l3);
     }
@@ -283,74 +402,20 @@ void mat_mcu_echantillonnage(MCUsTransformMat *matmcu, MCUsTransformMat *echan_m
 
 
 void echantillonnage(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu, int h1, int l1, int h2, int l2, int h3, int l3) {
+    if(matmcu->mcus->tailleCb == 0){
+        *echan_matmcu = *matmcu;
+    }
     printf("%d %d\n", matmcu->nbcol, matmcu->nblignes);
-    MCUsTransformMat *fusionmatmcu = fusion_mcu(matmcu, h1, l1);
-    printf("%d %d\n", fusionmatmcu->nbcol, fusionmatmcu->nblignes);
     if (l1 == l2 && h1 == h2 && l1==l3 && h1==h3) {
         //pas d'echantillonnage
-        *echan_matmcu = *fusionmatmcu;
+        *echan_matmcu = *matmcu;
         printf("%d %d\n", echan_matmcu->nblignes, echan_matmcu->nbcol);
 
     } else {
-        echan_matmcu->nblignes = fusionmatmcu->nblignes;
-        echan_matmcu->nbcol = fusionmatmcu->nbcol;
+        echan_matmcu->nblignes = matmcu->nblignes;
+        echan_matmcu->nbcol = matmcu->nbcol;
         echan_matmcu->mcus = malloc(echan_matmcu->nbcol * echan_matmcu->nblignes * sizeof(MCUTransform));
-        mat_mcu_echantillonnage(fusionmatmcu, echan_matmcu, h1, l1, h2, l2, h3, l3);
+        mat_mcu_echantillonnage(matmcu, echan_matmcu, h1, l1, h2, l2, h3, l3);
     }
 }
 
-/**
- * Affiche tous les MCUs
- * @param mcusTransformMat
- */
-void afficherAllMCUs2(MCUsTransformMat *mcusTransformMat){
-    printf("%i, %i", mcusTransformMat->nblignes, mcusTransformMat->nbcol);
-    for (int i = 0; i < mcusTransformMat->nblignes * mcusTransformMat->nbcol; ++i) {
-        printf("MCU #%d\n",i);
-
-        afficher_mcu2(mcusTransformMat->mcus[i]);
-    }
-}
-
-/**
- * Affiche un MCU
- * @param mcu
- */
-void afficher_mcu2(MCUTransform mcu) {
-    for (int i = 0; i < mcu.tailleY; ++i) {
-        printf("Y%i\n", i);
-        for (int j = 0; j < 64; ++j) {
-            if (j%8 == 0){
-                printf("\n");
-            }
-            printf("%hx ", mcu.Y[i][j]);
-        }
-        printf("\n\n");
-    }
-    if (mcu.Cb != NULL) {
-        for (int i = 0; i <mcu.tailleCb; ++i) {
-            printf("[Cb%i]\n", i);
-
-            for (int j = 0; j < 64; ++j) {
-                if (j % 8 == 0) {
-                    printf("\n");
-                }
-                printf("%hx  ", mcu.Cb[i][j]);
-            }
-            printf("\n\n");
-        }
-        for (int i = 0; i <mcu.tailleCr; ++i) {
-            printf("[Cr%i]\n", i);
-
-            for (int j = 0; j < 64; ++j) {
-                if (j % 8 == 0) {
-                    printf("\n");
-                }
-                printf("%hx  ", mcu.Cr[i][j]);
-            }
-            printf("\n");
-        }
-        printf("\n");
-    }
-    printf("\n");
-}

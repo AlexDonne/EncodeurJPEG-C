@@ -24,21 +24,24 @@ MCUsMatrice *imageToMCUs(ImagePPM *image, int l1) {
     for (int indTab = 0; indTab < taille; indTab++) {
         MCUPixels mcu;
         if (image->type == RGB) {
-            mcu.blocsRGB = malloc(64 * sizeof(PixelRGB));
-            test_malloc(mcu.blocsRGB);
+            mcu.blocsRGB = malloc(1 * sizeof(struct mcupixel));
+            mcu.blocsRGB[0] = malloc(64* sizeof(PixelRGB));
+            mcu.tailleBlocs = 1;
+            test_malloc(mcu.blocsRGB[0]);
             mcu.blocsNB = NULL;
             for (int i = 0, debligne = deblignebase; debligne < finligne; debligne++, i++) {
                 for (int j = 0, debcol = debcolbase; debcol < fincol; debcol++, j++) {
-                    mcu.blocsRGB[i * 8 + j] = image->pixelsRGB[debligne][debcol];
+                    mcu.blocsRGB[0][i * 8 + j] = image->pixelsRGB[debligne][debcol];
                 }
             }
         } else {
-            mcu.blocsNB = malloc(64 * sizeof(PixelNB));
+            mcu.blocsNB = malloc(1 * sizeof(MCUPixels));
+            mcu.blocsNB[0] = malloc(64 * sizeof(PixelNB));
             test_malloc(mcu.blocsNB);
             mcu.blocsRGB = NULL;
             for (int i = 0, debligne = deblignebase; debligne < finligne; debligne++, i++) {
                 for (int j = 0, debcol = debcolbase; debcol < fincol; debcol++, j++) {
-                    mcu.blocsNB[i * 8 + j] = image->pixelsNB[debligne][debcol];
+                    mcu.blocsNB[0][i * 8 + j] = image->pixelsNB[debligne][debcol];
                 }
             }
         }
@@ -69,12 +72,13 @@ void adapterPourEchantillonageHorizontal(MCUsMatrice *mcusMatrice, TYPE_IMAGE ty
     if (type == RGB) {
         for (int i = 0, ind = mcusMatrice->nblignes * mcusMatrice->nbcol; i < mcusMatrice->nbcol; ++i, ++ind) {
             MCUPixels mcu;
-            mcu.blocsRGB = malloc(64 * sizeof(PixelRGB));
+            mcu.blocsRGB = malloc(1 * sizeof(MCUPixels));
+            mcu.blocsRGB[0] = malloc(64 * sizeof(PixelRGB));
             test_malloc(mcu.blocsRGB);
             if (i % 2 == 0) {
                 int indice = (mcusMatrice->nblignes - 1) * (mcusMatrice->nbcol) + i + 1;
                 for (int j = 0, k = 56; j < 64; ++j, k++) {
-                    mcu.blocsRGB[j] = mcusMatrice->mcus[indice].blocsRGB[k];
+                    mcu.blocsRGB[0][j] = mcusMatrice->mcus[indice].blocsRGB[0][k];
                     if (k == 63) {
                         k = 55;
                     }
@@ -82,7 +86,7 @@ void adapterPourEchantillonageHorizontal(MCUsMatrice *mcusMatrice, TYPE_IMAGE ty
             } else {
                 int indice = (mcusMatrice->nblignes - 2) * mcusMatrice->nbcol + i - 1;
                 for (int j = 0, k = 56; j < 64; ++j, ++k) {
-                    mcu.blocsRGB[j] = mcusMatrice->mcus[indice].blocsRGB[k];
+                    mcu.blocsRGB[0][j] = mcusMatrice->mcus[indice].blocsRGB[0][k];
                     if (k == 63) {
                         k = 55;
                     }
@@ -94,12 +98,13 @@ void adapterPourEchantillonageHorizontal(MCUsMatrice *mcusMatrice, TYPE_IMAGE ty
     else {
         for (int i = 0, ind = mcusMatrice->nblignes * mcusMatrice->nbcol; i < mcusMatrice->nbcol; ++i, ++ind) {
             MCUPixels mcu;
-            mcu.blocsNB = malloc(64 * sizeof(PixelNB));
+            mcu.blocsNB = malloc(1 * sizeof(MCUPixels));
+            mcu.blocsNB[0] = malloc(64 * sizeof(PixelNB));
             test_malloc(mcu.blocsNB);
             if (i % 2 == 0) {
                 int indice = (mcusMatrice->nblignes - 1) * (mcusMatrice->nbcol) + i + 1;
                 for (int j = 0, k = 56; j < 64; ++j, k++) {
-                    mcu.blocsNB[j] = mcusMatrice->mcus[indice].blocsNB[k];
+                    mcu.blocsNB[0][j] = mcusMatrice->mcus[indice].blocsNB[0][k];
                     if (k == 63) {
                         k = 55;
                     }
@@ -107,7 +112,7 @@ void adapterPourEchantillonageHorizontal(MCUsMatrice *mcusMatrice, TYPE_IMAGE ty
             } else {
                 int indice = (mcusMatrice->nblignes - 2) * mcusMatrice->nbcol + i - 1;
                 for (int j = 0, k = 56; j < 64; ++j, ++k) {
-                    mcu.blocsNB[j] = mcusMatrice->mcus[indice].blocsNB[k];
+                    mcu.blocsNB[0][j] = mcusMatrice->mcus[indice].blocsNB[0][k];
                     if (k == 63) {
                         k = 55;
                     }
