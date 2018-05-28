@@ -56,7 +56,6 @@ int main(int argc, char *argv[]) {
     if (echantillon != NULL) {
         paramEchantillonage(echantillon, &h1, &l1, &h2, &l2, &h3, &l3);
     }
-
     MCUsMatrice *mat = imageToMCUs(image, l1);
     MCUsTransformMat *mcusTransform = rgbTOycbcrAllMcus(mat);
     MCUsTransformToQuantif(mcusTransform);

@@ -122,8 +122,10 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
             intermediaire->tailleY = mcusTransformMat->mcus[i].tailleY;
             intermediaire->Y = malloc(intermediaire->tailleY * sizeof(int16_t));
             test_malloc(intermediaire->Y);
-            MCUToQuantifRGB(&(mcusTransformMat->mcus[i]), intermediaire, &(mcusTransformMat->mcus[i]));
-            libererIntermediaire(intermediaire);
+            MCUToQuantifRGB(&(mcusTransformMat->mcus[i]), intermediaire);
+            libererIntermediaire(&(mcusTransformMat->mcus[i]));
+            mcusTransformMat->mcus[i] = *intermediaire;
+            free(intermediaire);
         }
     } else {
         for (int i = 0; i < mcusTransformMat->nbcol * mcusTransformMat->nblignes; ++i) {
@@ -134,8 +136,10 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
             intermediaire->tailleY = mcusTransformMat->mcus[i].tailleY;
             intermediaire->Y = malloc(intermediaire->tailleY * sizeof(int16_t));
             test_malloc(intermediaire->Y);
-            MCUToQuantifNB(&(mcusTransformMat->mcus[i]), intermediaire, &(mcusTransformMat->mcus[i]));
-            libererIntermediaire(intermediaire);
+            MCUToQuantifNB(&(mcusTransformMat->mcus[i]), intermediaire);
+            libererIntermediaire(&(mcusTransformMat->mcus[i]));
+            mcusTransformMat->mcus[i] = *intermediaire;
+            free(intermediaire);
         }
     }
 }
@@ -145,37 +149,28 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
  * @param mcu
  * @param dct_mcu
  */
-void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *final) {
+void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu) {
     for (int i = 0; i < mcu->tailleY; ++i) {
         dct_mcu->Y[i] = calloc(64, sizeof(int16_t));
         test_malloc(dct_mcu->Y[i]);
-        discrete_cosinus_transform(mcu->Y[i], dct_mcu->Y[i]);
-        free(final->Y[i]);
-        final->Y[i] = calloc(64, sizeof(int16_t));
-        test_malloc(final->Y[i]);
-        zigzag(dct_mcu->Y[i], final->Y[i]);
-        quantificationY(final->Y[i]);
+        fast_discrete_cosinus_transform(mcu->Y[i]);
+        zigzag(mcu->Y[i], dct_mcu->Y[i]);
+        quantificationY(dct_mcu->Y[i]);
     }
     for (int j = 0; j < mcu->tailleCb; ++j) {
         dct_mcu->Cb[j] = calloc(64, sizeof(int16_t));
         test_malloc(dct_mcu->Cb[j]);
-        discrete_cosinus_transform(mcu->Cb[j], dct_mcu->Cb[j]);
-        free(final->Cb[j]);
-        final->Cb[j] = calloc(64, sizeof(int16_t));
-        test_malloc(final->Cb[j]);
-        zigzag(dct_mcu->Cb[j], final->Cb[j]);
-        quantificationCbCr(final->Cb[j]);
+        fast_discrete_cosinus_transform(mcu->Cb[j]);
+        zigzag(mcu->Cb[j], dct_mcu->Cb[j]);
+        quantificationCbCr(dct_mcu->Cb[j]);
     }
 
     for (int k = 0; k < mcu->tailleCr; ++k) {
         dct_mcu->Cr[k] = calloc(64, sizeof(int16_t));
         test_malloc(dct_mcu->Cr[k]);
-        discrete_cosinus_transform(mcu->Cr[k], dct_mcu->Cr[k]);
-        free(final->Cr[k]);
-        final->Cr[k] = calloc(64, sizeof(int16_t));
-        test_malloc(final->Cr[k]);
-        zigzag(dct_mcu->Cr[k], final->Cr[k]);
-        quantificationCbCr(final->Cr[k]);
+        fast_discrete_cosinus_transform(mcu->Cr[k]);
+        zigzag(mcu->Cr[k], dct_mcu->Cr[k]);
+        quantificationCbCr(dct_mcu->Cr[k]);
     }
 
 }
@@ -199,7 +194,6 @@ void libererIntermediaire(MCUTransform *intermediaire) {
         free(intermediaire->Y[i]);
     }
     free(intermediaire->Y);
-    free(intermediaire);
 }
 
 /**
@@ -207,15 +201,12 @@ void libererIntermediaire(MCUTransform *intermediaire) {
  * @param mcu
  * @param dct_mcu
  */
-void MCUToQuantifNB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *final) {
+void MCUToQuantifNB(MCUTransform *mcu, MCUTransform *dct_mcu) {
     for (int i = 0; i < mcu->tailleY; ++i) {
         dct_mcu->Y[i] = calloc(64, sizeof(int16_t));
         test_malloc(dct_mcu->Y[i]);
-        discrete_cosinus_transform(mcu->Y[i], dct_mcu->Y[i]);
-        free(final->Y[i]);
-        final->Y[i] = calloc(64, sizeof(int16_t));
-        test_malloc(final->Y[i]);
-        zigzag(dct_mcu->Y[i], final->Y[i]);
-        quantificationY(final->Y[i]);
+        fast_discrete_cosinus_transform(mcu->Y[i]);
+        zigzag(mcu->Y[i], dct_mcu->Y[i]);
+        quantificationY(dct_mcu->Y[i]);
     }
 }

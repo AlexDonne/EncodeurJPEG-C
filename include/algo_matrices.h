@@ -21,6 +21,8 @@ void zigzag(int16_t *matrice, int16_t *zig_matrice);
  */
 void discrete_cosinus_transform(int16_t *matrice, int16_t *dct_matrice);
 
+void fast_discrete_cosinus_transform(int16_t *matrice);
+
 /**
  * Applique la quantification pour Y sur une matrice
  * @param matrice

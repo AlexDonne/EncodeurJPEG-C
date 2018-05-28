@@ -52,14 +52,14 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcUsTransformMat);
  * @param mcu
  * @param dct_mcu
  */
-void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *final);
+void MCUToQuantifRGB(MCUTransform *mcu, MCUTransform *dct_mcu);
 
 /**
  * Applique le DCT, le zigzag et la quantification pour un MCU d'une image noir et blanc
  * @param mcu
  * @param dct_mcu
  */
-void MCUToQuantifNB(MCUTransform *mcu, MCUTransform *dct_mcu, MCUTransform *final);
+void MCUToQuantifNB(MCUTransform *mcu, MCUTransform *dct_mcu);
 
 /**
  * Libère la MCUTransform intermédiaire utilisée
