@@ -6,8 +6,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include "structures.h"
+#include "libererStructures.h"
+#include "test_malloc.h"
 
 MCUsMatrice *fusion_RGB(MCUsMatrice *mcus_rgb, int h1, int l1);
 
