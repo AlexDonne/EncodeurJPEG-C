@@ -9,10 +9,9 @@ ImagePPM *creerImagePPM(char *chemin, char *nom) {
     ImagePPM *image = malloc(sizeof(struct imagePPM));
     test_malloc(image);
     image->chemin = chemin;
-    if (nom == NULL){
+    if (nom == NULL) {
         image->nom = nouveauNom(chemin);
-    }
-    else {
+    } else {
         image->nom = malloc(strlen(nom) * sizeof(char));
         test_malloc(image->nom);
         strcpy(image->nom, nom);
@@ -34,13 +33,14 @@ char *nouveauNom(char *chemin) {
             break;
         }
     }
-    char *nom = malloc(nblettres * sizeof(char));
+    char *nom = malloc((nblettres + 1) * sizeof(char));
     test_malloc(nom);
     int debut = strlen(chemin) - nblettres;
     for (unsigned long i = debut, j = 0; i < strlen(chemin); ++i, ++j) {
         nom[j] = chemin[i];
     }
-    char *inter = malloc((nblettres + 9) * sizeof(char));
+    nom[nblettres] = '\0';
+    char *inter = malloc((nblettres + 10) * sizeof(char));
     test_malloc(inter);
     strcpy(inter, "napoleon-");
     strcat(inter, nom);
@@ -49,7 +49,7 @@ char *nouveauNom(char *chemin) {
     inter[longueur - 2] = 'p';
     inter[longueur - 1] = 'g';
     free(nom);
-    char *final = malloc((strlen(inter) + 7) * sizeof(char));
+    char *final = malloc((strlen(inter) + 8) * sizeof(char));
     test_malloc(final);
     strcpy(final, "images/");
     strcat(final, inter);

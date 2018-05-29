@@ -43,37 +43,12 @@ void zigzag(int16_t *matrice, int16_t *zig_matrice) {
     }
 }
 
+
 /**
- * Applique le DCT sur une matrice
+ * Applique le DCT sur une matrice, en évitant les calculs de cosinus
  * @param matrice
  * @param dct_matrice
  */
-void discrete_cosinus_transform(int16_t *matrice, int16_t *dct_matrice) {
-    /* on réalise l'opération -128 */
-    for (int i = 0; i < 64; i++) {
-        matrice[i] -= 128;
-    }
-    float somme;
-    float n = 8;
-    float c_i;
-
-    float c_j;
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            somme = 0;
-            for (int x = 0; x < 8; x++) {
-                for (int y = 0; y < 8; y++) {
-                    somme += (matrice[x * 8 + y]) * cos((2 * x + 1) * i * M_PI / (2 * n)) *
-                             cos((2 * y + 1) * j * M_PI / (2 * n));
-                }
-            }
-            c_i = (i == 0) ? 1 / sqrt(2) : 1;
-            c_j = (j == 0) ? 1 / sqrt(2) : 1;
-            dct_matrice[i * 8 + j] = round(2 / n * c_i * c_j * somme);
-        }
-    }
-}
-
 void fast_discrete_cosinus_transform(int16_t *matrice) {
     float dct_matrice[64];
     for (int i = 0; i < 64; i++) {

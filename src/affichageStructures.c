@@ -58,11 +58,15 @@ void afficherMCUsMatrice(MCUsMatrice *tabMcus) {
  * @param mcu
  */
 void afficherMCUMatrice_RGB(MCUPixels mcu) {
-    for (int i = 0; i < 64; i++) {
-        if (i % 8 == 0) {
-            printf("\n");
+    for (int i = 0; i < mcu.tailleBlocs; i++) {
+        printf("BlocRGB%d\n", i);
+        for (int j = 0; j < 64; ++j) {
+            if (j % 8 == 0) {
+                printf("\n");
+            }
+            printf("%02hhx%02hhx%02hhx  ", mcu.blocsRGB[i][j].rouge, mcu.blocsRGB[i][j].vert, mcu.blocsRGB[i][j].bleu);
         }
-        printf("%02hhx%02hhx%02hhx  ", mcu.blocsRGB[i].rouge, mcu.blocsRGB[i].vert, mcu.blocsRGB[i].bleu);
+        printf("\n");
     }
 }
 
@@ -71,34 +75,39 @@ void afficherMCUMatrice_RGB(MCUPixels mcu) {
  * @param mcu
  */
 void afficherMCUMatrice_NB(MCUPixels mcu) {
-    for (int i = 0; i < 64; i++) {
-        if (i % 8 == 0) {
-            printf("\n");
+    for (int i = 0; i < mcu.tailleBlocs; i++) {
+        for (int j = 0; j < 64; ++j) {
+
+            if (i % 8 == 0) {
+                printf("\n");
+            }
+            printf("%02hhx ", mcu.blocsNB[i][j]);
         }
-        printf("%02hhx ", mcu.blocsNB[i]);
     }
 }
 
 /**
- * Affiche tous les MCUs Transform
+ * Affiche tous les MCUs
  * @param mcusTransformMat
  */
-void afficherAllMCUsTransform(MCUsTransformMat *mcusTransformMat) {
+void afficherAllMCUsTransform(MCUsTransformMat *mcusTransformMat){
+    printf("%i, %i", mcusTransformMat->nblignes, mcusTransformMat->nbcol);
     for (int i = 0; i < mcusTransformMat->nblignes * mcusTransformMat->nbcol; ++i) {
-        printf("MCU #%d\n", i);
+        printf("MCU #%d\n",i);
+
         afficher_mcu_Transform(mcusTransformMat->mcus[i]);
     }
 }
 
 /**
- * Affiche un MCU Transform
+ * Affiche un MCU
  * @param mcu
  */
 void afficher_mcu_Transform(MCUTransform mcu) {
     for (int i = 0; i < mcu.tailleY; ++i) {
         printf("Y%i\n", i);
         for (int j = 0; j < 64; ++j) {
-            if (j % 8 == 0) {
+            if (j%8 == 0){
                 printf("\n");
             }
             printf("%04hx ", mcu.Y[i][j]);
@@ -106,24 +115,29 @@ void afficher_mcu_Transform(MCUTransform mcu) {
         printf("\n\n");
     }
     if (mcu.Cb != NULL) {
-        printf("[Cb]\n");
-        for (int j = 0; j < 64; ++j) {
-            if (j % 8 == 0) {
-                printf("\n");
+        for (int i = 0; i <mcu.tailleCb; ++i) {
+            printf("[Cb%i]\n", i);
+
+            for (int j = 0; j < 64; ++j) {
+                if (j % 8 == 0) {
+                    printf("\n");
+                }
+                printf("%04hx  ", mcu.Cb[i][j]);
             }
-            printf("%04hx  ", mcu.Cb[j]);
+            printf("\n\n");
         }
-        printf("\n\n");
-        printf("[Cr]\n");
-        for (int j = 0; j < 64; ++j) {
-            if (j % 8 == 0) {
-                printf("\n");
+        for (int i = 0; i <mcu.tailleCr; ++i) {
+            printf("[Cr%i]\n", i);
+
+            for (int j = 0; j < 64; ++j) {
+                if (j % 8 == 0) {
+                    printf("\n");
+                }
+                printf("%04hx  ", mcu.Cr[i][j]);
             }
-            printf("%04hx  ", mcu.Cr[j]);
+            printf("\n");
         }
         printf("\n");
     }
     printf("\n");
 }
-
-

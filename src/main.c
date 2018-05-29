@@ -5,14 +5,25 @@
 #include "../include/imageToMCUs.h"
 #include "../include/operationMCU.h"
 #include "../include/codage_huffman_RLE.h"
+#include "../include/echantillonnage.h"
 
-void paramEchantillonage (char* echantillon, int *h1, int *l1, int *h2, int *l2, int *h3, int *l3){
-    if (strlen(echantillon) != 11){
+/**
+ * Traite les paramètres d'échantillonage
+ * @param echantillon
+ * @param h1
+ * @param l1
+ * @param h2
+ * @param l2
+ * @param h3
+ * @param l3
+ */
+void paramEchantillonage(char *echantillon, int *h1, int *l1, int *h2, int *l2, int *h3, int *l3) {
+    if (strlen(echantillon) != 11) {
         printf("L'échantillonage doit être de la forme : 2x2,2x2,2x1");
         exit(EXIT_FAILURE);
     }
     for (unsigned long i = 0; i < strlen(echantillon); ++i) {
-        if (echantillon[i] == ' '){
+        if (echantillon[i] == ' ') {
             printf("L'échantillonage doit être de la forme : 2x2,2x2,2x1");
             exit(EXIT_FAILURE);
         }
@@ -34,20 +45,17 @@ int main(int argc, char *argv[]) {
     char *echantillon = NULL;
     char *nom = NULL;
     for (int i = 1; i < argc; ++i) {
-        if (!strcmp(argv[i], "--sample")){
-            echantillon = argv[i+1];
+        if (!strcmp(argv[i], "--sample")) {
+            echantillon = argv[i + 1];
             i++;
-        }
-
-        else if (!strcmp(argv[i], "--output-file")){
-            nom = argv[i+1];
+        } else if (!strcmp(argv[i], "--output-file")) {
+            nom = argv[i + 1];
             i++;
-        }
-        else {
+        } else {
             chemin = argv[i];
         }
     }
-    if (chemin == NULL){
+    if (chemin == NULL) {
         printf("Argument requis : nom du fichier\n");
         exit(EXIT_FAILURE);
     }
@@ -57,7 +65,11 @@ int main(int argc, char *argv[]) {
         paramEchantillonage(echantillon, &h1, &l1, &h2, &l2, &h3, &l3);
     }
     MCUsMatrice *mat = imageToMCUs(image, l1);
-    MCUsTransformMat *mcusTransform = rgbTOycbcrAllMcus(mat);
+    MCUsMatrice *fusion_mat = fusion_RGB(mat, h1, l1);
+    MCUsTransformMat *mcusTransform = rgbTOycbcrAllMcus(fusion_mat, h1, l1);
+    mcusTransform = echantillonnage(mcusTransform, h1, l1, h2, l2, h3, l3);
     MCUsTransformToQuantif(mcusTransform);
-    ecrire_jpeg(image, mcusTransform);
+    afficherAllMCUsTransform(mcusTransform);
+    ecrire_jpeg(image, mcusTransform, h1, l1, h2, l2, h3, l3);
+    exit(EXIT_SUCCESS);
 }

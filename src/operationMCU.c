@@ -5,40 +5,38 @@
  * @param mcuPixels
  * @return
  */
-MCUTransform rgbTOycbcr(MCUPixels mcuPixels) {
+MCUTransform rgbTOycbcr(MCUPixels mcuPixels, int h1, int l1) {
     MCUTransform mcuTransform;
-    mcuTransform.tailleY = 1;
-    mcuTransform.tailleCb = 1;
-    mcuTransform.tailleCr = 1;
-    mcuTransform.Y = malloc(sizeof(int16_t));
+    mcuTransform.tailleY = h1 * l1;
+    mcuTransform.tailleCb = h1 * l1;
+    mcuTransform.tailleCr = h1 * l1;
+    mcuTransform.Y = malloc(mcuTransform.tailleY * sizeof(void *));
     test_malloc(mcuTransform.Y);
-    mcuTransform.Y[0] = malloc(64 * sizeof(int16_t));
-    test_malloc(mcuTransform.Y[0]);
-
-
-    mcuTransform.Cb = malloc(sizeof(int16_t));
+    mcuTransform.Cb = malloc(mcuTransform.tailleCb * sizeof(void *));
     test_malloc(mcuTransform.Cb);
-    mcuTransform.Cb[0] = malloc(64 * sizeof(int16_t));
-    test_malloc(mcuTransform.Cb[0]);
-
-    mcuTransform.Cr = malloc(sizeof(int16_t));
+    mcuTransform.Cr = malloc(mcuTransform.tailleCr * sizeof(void *));
     test_malloc(mcuTransform.Cr);
-    mcuTransform.Cr[0] = malloc(64 * sizeof(int16_t));
-    test_malloc(mcuTransform.Cr[0]);
+    for (int i = 0; i < mcuTransform.tailleY; ++i) {
+        mcuTransform.Y[i] = malloc(64 * sizeof(int16_t));
+        test_malloc(mcuTransform.Y[i]);
+        mcuTransform.Cb[i] = malloc(64 * sizeof(int16_t));
+        test_malloc(mcuTransform.Cb[i]);
+        mcuTransform.Cr[i] = malloc(64 * sizeof(int16_t));
+        test_malloc(mcuTransform.Cr[i]);
+        for (int j = 0; j < 64; ++j) {
+            mcuTransform.Y[i][j] = round(0.299 * mcuPixels.blocsRGB[i][j].rouge
+                                         + 0.587 * mcuPixels.blocsRGB[i][j].vert
+                                         + 0.114 * mcuPixels.blocsRGB[i][j].bleu);
 
-    for (int j = 0; j < 64; ++j) {
-        mcuTransform.Y[0][j] = round(0.299 * mcuPixels.blocsRGB[j].rouge
-                                     + 0.587 * mcuPixels.blocsRGB[j].vert
-                                     + 0.114 * mcuPixels.blocsRGB[j].bleu);
+            mcuTransform.Cb[i][j] = round(-0.1687 * mcuPixels.blocsRGB[i][j].rouge
+                                          - 0.3313 * mcuPixels.blocsRGB[i][j].vert
+                                          + 0.5 * mcuPixels.blocsRGB[i][j].bleu + 128);
 
-        mcuTransform.Cb[0][j] = round(-0.1687 * mcuPixels.blocsRGB[j].rouge
-                                   - 0.3313 * mcuPixels.blocsRGB[j].vert
-                                   + 0.5 * mcuPixels.blocsRGB[j].bleu + 128);
+            mcuTransform.Cr[i][j] = round(0.5 * mcuPixels.blocsRGB[i][j].rouge
+                                          - 0.4187 * mcuPixels.blocsRGB[i][j].vert
+                                          - 0.0813 * mcuPixels.blocsRGB[i][j].bleu + 128);
 
-        mcuTransform.Cr[0][j] = round(0.5 * mcuPixels.blocsRGB[j].rouge
-                                   - 0.4187 * mcuPixels.blocsRGB[j].vert
-                                   - 0.0813 * mcuPixels.blocsRGB[j].bleu + 128);
-
+        }
     }
     return mcuTransform;
 }
@@ -51,13 +49,19 @@ MCUTransform rgbTOycbcr(MCUPixels mcuPixels) {
 MCUTransform nbTOy(MCUPixels mcuPixels) {
     MCUTransform mcuTransform;
     mcuTransform.tailleY = 1;
-    mcuTransform.Y = malloc(sizeof(int16_t));
+    mcuTransform.Y = malloc(mcuTransform.tailleY * sizeof(void *));
     test_malloc(mcuTransform.Y);
-    mcuTransform.Y[0] = malloc(64 * sizeof(int16_t));
-    test_malloc(mcuTransform.Y[0]);
-    for (int j = 0; j < 64; ++j) {
-        mcuTransform.Y[0][j] = (uint16_t) mcuPixels.blocsNB[j];
+    for (int i = 0; i < mcuTransform.tailleY; ++i) {
+        mcuTransform.Y[i] = malloc(64 * sizeof(int16_t));
+        test_malloc(mcuTransform.Y[0]);
+        for (int j = 0; j < 64; ++j) {
+            mcuTransform.Y[i][j] = (uint16_t) mcuPixels.blocsNB[i][j];
+        }
     }
+    mcuTransform.Cb = NULL;
+    mcuTransform.Cr = NULL;
+    mcuTransform.tailleCr = 0;
+    mcuTransform.tailleCb = 0;
     return mcuTransform;
 }
 
@@ -66,7 +70,7 @@ MCUTransform nbTOy(MCUPixels mcuPixels) {
  * @param mcusMat
  * @return
  */
-MCUsTransformMat *rgbTOycbcrAllMcus(MCUsMatrice *mcusMat) {
+MCUsTransformMat *rgbTOycbcrAllMcus(MCUsMatrice *mcusMat, int h1, int l1) {
     int taille = mcusMat->nbcol * mcusMat->nblignes;
     MCUsTransformMat *mcusTransform = malloc(sizeof(MCUsTransformMat));
     test_malloc(mcusTransform);
@@ -74,7 +78,7 @@ MCUsTransformMat *rgbTOycbcrAllMcus(MCUsMatrice *mcusMat) {
     test_malloc(mcusTransform->mcus);
     mcusTransform->nblignes = mcusMat->nblignes;
     mcusTransform->nbcol = mcusMat->nbcol;
-    if (mcusMat->mcus[0].blocsRGB == NULL) {
+    if (mcusMat->type == NB) {
         for (int i = 0; i < taille; ++i) {
             mcusTransform->mcus[i] = nbTOy(mcusMat->mcus[i]);
         }
@@ -82,7 +86,7 @@ MCUsTransformMat *rgbTOycbcrAllMcus(MCUsMatrice *mcusMat) {
         return mcusTransform;
     }
     for (int i = 0; i < taille; ++i) {
-        mcusTransform->mcus[i] = rgbTOycbcr(mcusMat->mcus[i]);
+        mcusTransform->mcus[i] = rgbTOycbcr(mcusMat->mcus[i], h1, l1);
     }
     libererMCUsMatrice(mcusMat);
     return mcusTransform;
@@ -93,9 +97,20 @@ MCUsTransformMat *rgbTOycbcrAllMcus(MCUsMatrice *mcusMat) {
  * @param mcusMat
  */
 void libererMCUsMatrice(MCUsMatrice *mcusMat) {
-    for (int i = 0; i < mcusMat->nblignes * mcusMat->nbcol; ++i) {
-        free(mcusMat->mcus[i].blocsRGB);
-        free(mcusMat->mcus[i].blocsNB);
+    if (mcusMat->type == RGB) {
+        for (int i = 0; i < mcusMat->nblignes * mcusMat->nbcol; ++i) {
+            for (int j = 0; j < mcusMat->mcus[i].tailleBlocs; ++j) {
+                free(mcusMat->mcus[i].blocsRGB[j]);
+            }
+            free(mcusMat->mcus[i].blocsRGB);
+        }
+    } else {
+        for (int i = 0; i < mcusMat->nblignes * mcusMat->nbcol; ++i) {
+            for (int j = 0; j < mcusMat->mcus[i].tailleBlocs; ++j) {
+                free(mcusMat->mcus[i].blocsNB[j]);
+            }
+            free(mcusMat->mcus[i].blocsNB);
+        }
     }
     free(mcusMat->mcus);
     free(mcusMat);
@@ -112,15 +127,15 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
             test_malloc(intermediaire);
 
             intermediaire->tailleCb = mcusTransformMat->mcus[i].tailleCb;
-            intermediaire->Cb = malloc(intermediaire->tailleCb * sizeof(int16_t));
+            intermediaire->Cb = malloc(intermediaire->tailleCb * sizeof(void *));
             test_malloc(intermediaire->Cb);
 
             intermediaire->tailleCr = mcusTransformMat->mcus[i].tailleCr;
-            intermediaire->Cr = malloc(intermediaire->tailleCr * sizeof(int16_t));
+            intermediaire->Cr = malloc(intermediaire->tailleCr * sizeof(void *));
             test_malloc(intermediaire->Cr);
 
             intermediaire->tailleY = mcusTransformMat->mcus[i].tailleY;
-            intermediaire->Y = malloc(intermediaire->tailleY * sizeof(int16_t));
+            intermediaire->Y = malloc(intermediaire->tailleY * sizeof(void *));
             test_malloc(intermediaire->Y);
             MCUToQuantifRGB(&(mcusTransformMat->mcus[i]), intermediaire);
             libererIntermediaire(&(mcusTransformMat->mcus[i]));
@@ -134,7 +149,7 @@ void MCUsTransformToQuantif(MCUsTransformMat *mcusTransformMat) {
             intermediaire->Cb = NULL;
             intermediaire->Cr = NULL;
             intermediaire->tailleY = mcusTransformMat->mcus[i].tailleY;
-            intermediaire->Y = malloc(intermediaire->tailleY * sizeof(int16_t));
+            intermediaire->Y = malloc(intermediaire->tailleY * sizeof(void *));
             test_malloc(intermediaire->Y);
             MCUToQuantifNB(&(mcusTransformMat->mcus[i]), intermediaire);
             libererIntermediaire(&(mcusTransformMat->mcus[i]));

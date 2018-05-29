@@ -34,8 +34,9 @@ typedef struct imagePPM {
  * Structure pour un MCU, si en couleur alors blocsNB est NULL, et réciproquement
  */
 typedef struct mcupixel {
-    PixelRGB *blocsRGB;
-    PixelNB *blocsNB;
+    PixelRGB **blocsRGB;
+    PixelNB **blocsNB;
+    int tailleBlocs;
 } MCUPixels;
 
 /**
@@ -45,6 +46,7 @@ typedef struct mcusMatrice {
     MCUPixels *mcus;
     int nbcol;
     int nblignes;
+    TYPE_IMAGE type;
 } MCUsMatrice;
 
 /**
