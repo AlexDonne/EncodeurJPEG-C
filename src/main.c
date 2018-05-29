@@ -65,11 +65,14 @@ int main(int argc, char *argv[]) {
         paramEchantillonage(echantillon, &h1, &l1, &h2, &l2, &h3, &l3);
     }
     MCUsMatrice *mat = imageToMCUs(image, l1);
-    MCUsMatrice *fusion_mat = fusion_RGB(mat, h1, l1);
-    MCUsTransformMat *mcusTransform = rgbTOycbcrAllMcus(fusion_mat, h1, l1);
+
+    mat = fusion_RGB(mat, h1, l1);
+
+    MCUsTransformMat *mcusTransform = rgbTOycbcrAllMcus(mat, h1, l1);
+
     mcusTransform = echantillonnage(mcusTransform, h1, l1, h2, l2, h3, l3);
+
     MCUsTransformToQuantif(mcusTransform);
-    afficherAllMCUsTransform(mcusTransform);
     ecrire_jpeg(image, mcusTransform, h1, l1, h2, l2, h3, l3);
     exit(EXIT_SUCCESS);
 }

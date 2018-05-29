@@ -24,7 +24,7 @@ MCUsMatrice *imageToMCUs(ImagePPM *image, int h1, int l1) {
     for (int indTab = 0; indTab < taille; indTab++) {
         MCUPixels mcu;
         if (image->type == RGB) {
-            mcu.blocsRGB = malloc(1 * sizeof(MCUPixels));
+            mcu.blocsRGB = malloc(1 * sizeof(PixelRGB*));
             mcu.blocsRGB[0] = malloc(64 * sizeof(PixelRGB));
             mcu.tailleBlocs = 1;
             test_malloc(mcu.blocsRGB[0]);
@@ -35,7 +35,7 @@ MCUsMatrice *imageToMCUs(ImagePPM *image, int h1, int l1) {
                 }
             }
         } else {
-            mcu.blocsNB = malloc(1 * sizeof(MCUPixels));
+            mcu.blocsNB = malloc(1 * sizeof(PixelNB*));
             mcu.blocsNB[0] = malloc(64 * sizeof(PixelNB));
             mcu.tailleBlocs = 1;
             test_malloc(mcu.blocsNB);
@@ -118,6 +118,7 @@ void adapterPourEchantillonageHorizontal(MCUsMatrice *mcusMatrice, TYPE_IMAGE ty
             nouv[ind] = mcu;
         }
     }
+    //libererMCUsPixels(mcusMatrice);
     mcusMatrice->mcus = nouv;
     mcusMatrice->nblignes++;
 }
@@ -215,31 +216,4 @@ void adaptationMCU(ImagePPM *image, int *nouvHauteur, int *nouvLargeur) {
         libererPixelsNB(image->pixelsNB, image->hauteur);
         image->pixelsNB = nouvPixels;
     }
-}
-
-/**
- * Libère les tableaux de pixels de l'image
- * @param image
- * @param hauteur
- */
-void libererPixels(ImagePPM *image, int hauteur) {
-    if (image->type == RGB) {
-        libererPixelsRGB(image->pixelsRGB, hauteur);
-    } else {
-        libererPixelsNB(image->pixelsNB, hauteur);
-    }
-}
-
-void libererPixelsRGB(PixelRGB **pixels, int hauteur) {
-    for (int i = 0; i < hauteur; i++) {
-        free(pixels[i]);
-    }
-    free(pixels);
-}
-
-void libererPixelsNB(PixelNB **pixels, int hauteur) {
-    for (int i = 0; i < hauteur; i++) {
-        free(pixels[i]);
-    }
-    free(pixels);
 }

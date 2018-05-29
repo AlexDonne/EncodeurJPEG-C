@@ -93,30 +93,6 @@ MCUsTransformMat *rgbTOycbcrAllMcus(MCUsMatrice *mcusMat, int h1, int l1) {
 }
 
 /**
- * Libère l'espace mémoire occupée par une structure MCUsMatrice
- * @param mcusMat
- */
-void libererMCUsMatrice(MCUsMatrice *mcusMat) {
-    if (mcusMat->type == RGB) {
-        for (int i = 0; i < mcusMat->nblignes * mcusMat->nbcol; ++i) {
-            for (int j = 0; j < mcusMat->mcus[i].tailleBlocs; ++j) {
-                free(mcusMat->mcus[i].blocsRGB[j]);
-            }
-            free(mcusMat->mcus[i].blocsRGB);
-        }
-    } else {
-        for (int i = 0; i < mcusMat->nblignes * mcusMat->nbcol; ++i) {
-            for (int j = 0; j < mcusMat->mcus[i].tailleBlocs; ++j) {
-                free(mcusMat->mcus[i].blocsNB[j]);
-            }
-            free(mcusMat->mcus[i].blocsNB);
-        }
-    }
-    free(mcusMat->mcus);
-    free(mcusMat);
-}
-
-/**
  * Applique le DCT, le zigzag et la quantification pour tous les MCUS
  * @param mcusTransformMat
  */
