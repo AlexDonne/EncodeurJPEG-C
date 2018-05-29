@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "structures.h"
+
 /**
  * Libère les tableaux de pixels de l'image
  * @param image

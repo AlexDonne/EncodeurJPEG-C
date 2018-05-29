@@ -14,12 +14,21 @@
  * @param image
  * @return
  */
-MCUsMatrice *imageToMCUs(ImagePPM *image,  int h1, int l1);
-
-void adapterPourEchantillonageHorizontal(MCUsMatrice * mcusMatrice, TYPE_IMAGE type);
+MCUsMatrice *imageToMCUs(ImagePPM *image, int h1, int l1);
 
 
-void adapterPourEchantillonageVertical(MCUsMatrice * mcusMatrice, TYPE_IMAGE type);
+/**
+ * Si l'échantillonage est par deux (par exemple 1x2) mais que le nombre de lignes de la matrice des MCUs n'est pas pair, on rajoute une ligne de MCUs en bas.
+ * @param mcusMatrice
+ */
+void adapterPourEchantillonageHorizontal(MCUsMatrice *mcusMatrice);
+
+
+/**
+ * Si l'échantillonage est par deux (exemple 2x1) mais que le nombre de colonnes de la matrice des MCUs n'est pas pair, on rajoute une colonne de MCUs à droite.
+ * @param mcusMatrice
+ */
+void adapterPourEchantillonageVertical(MCUsMatrice *mcusMatrice);
 
 /**
  * Duplique les dernières lignes ou/et dernières colonnes pour avoir une hauteur et une largeur multiple de 8

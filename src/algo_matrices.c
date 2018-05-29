@@ -55,24 +55,68 @@ void fast_discrete_cosinus_transform(int16_t *matrice) {
         matrice[i] -= 128;
     }
     for (int j = 0; j < 8; j++) {
-        dct_matrice[0*8 + j] = matrice[0*8 + j] + matrice[1*8 + j] + matrice[2*8 + j] + matrice[3*8 + j] + matrice[4*8 + j] + matrice[5*8 + j] + matrice[6*8 + j] + matrice[7*8 + j];
-        dct_matrice[1*8 + j] = tab_cosinus[0] * (matrice[0*8 + j] - matrice[7*8 + j]) - tab_cosinus[2] * (matrice[6*8 + j] - matrice[1*8 + j]) + tab_cosinus[3] * (matrice[2*8 + j] - matrice[5*8 + j]) - tab_cosinus[5] * (matrice[4*8 + j] - matrice[3*8 + j]);
-        dct_matrice[2*8 + j] = tab_cosinus[1] * (matrice[0*8 + j] + matrice[7*8 + j] - matrice[3*8 + j] - matrice[4*8 + j]) + tab_cosinus[4] * (matrice[1*8 + j] + matrice[6*8 + j] - matrice[2*8 + j] - matrice[5*8 + j]);
-        dct_matrice[3*8 + j] = tab_cosinus[2] * (matrice[0*8 + j] - matrice[7*8 + j]) + tab_cosinus[5] * (matrice[6*8 + j] - matrice[1*8 + j]) - tab_cosinus[0] * (matrice[2*8 + j] - matrice[5*8 + j]) + tab_cosinus[3] * (matrice[4*8 + j] - matrice[3*8 + j]);
-        dct_matrice[4*8 + j] = matrice[0*8 + j] - matrice[1*8 + j] - matrice[2*8 + j] + matrice[3*8 + j] + matrice[4*8 + j] - matrice[5*8 + j] - matrice[6*8 + j] + matrice[7*8 + j];
-        dct_matrice[5*8 + j] = tab_cosinus[3] * (matrice[0*8 + j] - matrice[7*8 + j]) + tab_cosinus[0] * (matrice[6*8 + j] - matrice[1*8 + j]) + tab_cosinus[5] * (matrice[2*8 + j] - matrice[5*8 + j]) - tab_cosinus[2] * (matrice[4*8 + j] - matrice[3*8 + j]);
-        dct_matrice[6*8 + j] = tab_cosinus[4] * (matrice[0*8 + j] + matrice[7*8 + j] - matrice[3*8 + j] - matrice[4*8 + j]) - tab_cosinus[1] * (matrice[1*8 + j] + matrice[6*8 + j] - matrice[2*8 + j] - matrice[5*8 + j]);
-        dct_matrice[7*8 + j] = tab_cosinus[5] * (matrice[0*8 + j] - matrice[7*8 + j]) + tab_cosinus[3] * (matrice[6*8 + j] - matrice[1*8 + j]) + tab_cosinus[2] * (matrice[2*8 + j] - matrice[5*8 + j]) + tab_cosinus[0] * (matrice[4*8 + j] - matrice[3*8 + j]);
+        dct_matrice[0 * 8 + j] =
+                matrice[0 * 8 + j] + matrice[1 * 8 + j] + matrice[2 * 8 + j] + matrice[3 * 8 + j] + matrice[4 * 8 + j] +
+                matrice[5 * 8 + j] + matrice[6 * 8 + j] + matrice[7 * 8 + j];
+        dct_matrice[1 * 8 + j] = tab_cosinus[0] * (matrice[0 * 8 + j] - matrice[7 * 8 + j]) -
+                                 tab_cosinus[2] * (matrice[6 * 8 + j] - matrice[1 * 8 + j]) +
+                                 tab_cosinus[3] * (matrice[2 * 8 + j] - matrice[5 * 8 + j]) -
+                                 tab_cosinus[5] * (matrice[4 * 8 + j] - matrice[3 * 8 + j]);
+        dct_matrice[2 * 8 + j] =
+                tab_cosinus[1] * (matrice[0 * 8 + j] + matrice[7 * 8 + j] - matrice[3 * 8 + j] - matrice[4 * 8 + j]) +
+                tab_cosinus[4] * (matrice[1 * 8 + j] + matrice[6 * 8 + j] - matrice[2 * 8 + j] - matrice[5 * 8 + j]);
+        dct_matrice[3 * 8 + j] = tab_cosinus[2] * (matrice[0 * 8 + j] - matrice[7 * 8 + j]) +
+                                 tab_cosinus[5] * (matrice[6 * 8 + j] - matrice[1 * 8 + j]) -
+                                 tab_cosinus[0] * (matrice[2 * 8 + j] - matrice[5 * 8 + j]) +
+                                 tab_cosinus[3] * (matrice[4 * 8 + j] - matrice[3 * 8 + j]);
+        dct_matrice[4 * 8 + j] =
+                matrice[0 * 8 + j] - matrice[1 * 8 + j] - matrice[2 * 8 + j] + matrice[3 * 8 + j] + matrice[4 * 8 + j] -
+                matrice[5 * 8 + j] - matrice[6 * 8 + j] + matrice[7 * 8 + j];
+        dct_matrice[5 * 8 + j] = tab_cosinus[3] * (matrice[0 * 8 + j] - matrice[7 * 8 + j]) +
+                                 tab_cosinus[0] * (matrice[6 * 8 + j] - matrice[1 * 8 + j]) +
+                                 tab_cosinus[5] * (matrice[2 * 8 + j] - matrice[5 * 8 + j]) -
+                                 tab_cosinus[2] * (matrice[4 * 8 + j] - matrice[3 * 8 + j]);
+        dct_matrice[6 * 8 + j] =
+                tab_cosinus[4] * (matrice[0 * 8 + j] + matrice[7 * 8 + j] - matrice[3 * 8 + j] - matrice[4 * 8 + j]) -
+                tab_cosinus[1] * (matrice[1 * 8 + j] + matrice[6 * 8 + j] - matrice[2 * 8 + j] - matrice[5 * 8 + j]);
+        dct_matrice[7 * 8 + j] = tab_cosinus[5] * (matrice[0 * 8 + j] - matrice[7 * 8 + j]) +
+                                 tab_cosinus[3] * (matrice[6 * 8 + j] - matrice[1 * 8 + j]) +
+                                 tab_cosinus[2] * (matrice[2 * 8 + j] - matrice[5 * 8 + j]) +
+                                 tab_cosinus[0] * (matrice[4 * 8 + j] - matrice[3 * 8 + j]);
     }
     for (int i = 0; i < 8; i++) {
-        matrice[i*8 + 0] = 0.125 * (dct_matrice[i*8 + 0] + dct_matrice[i*8 + 1] + dct_matrice[i*8 + 2] + dct_matrice[i*8 + 3] + dct_matrice[i*8 + 4] + dct_matrice[i*8 + 5] + dct_matrice[i*8 + 6] + dct_matrice[i*8 + 7]);
-        matrice[i*8 + 1] = 0.125 * (tab_cosinus[0] * (dct_matrice[i*8 + 0] - dct_matrice[i*8 + 7]) - tab_cosinus[2] * (dct_matrice[i*8 + 6] - dct_matrice[i*8 + 1]) + tab_cosinus[3] * (dct_matrice[i*8 + 2] - dct_matrice[i*8 + 5]) - tab_cosinus[5] * (dct_matrice[i*8 + 4] - dct_matrice[i*8 + 3]));
-        matrice[i*8 + 2] = 0.125 * (tab_cosinus[1] * (dct_matrice[i*8 + 0] + dct_matrice[i*8 + 7] - dct_matrice[i*8 + 3] - dct_matrice[i*8 + 4]) + tab_cosinus[4] * (dct_matrice[i*8 + 1] + dct_matrice[i*8 + 6] - dct_matrice[i*8 + 2] - dct_matrice[i*8 + 5]));
-        matrice[i*8 + 3] = 0.125 * (tab_cosinus[2] * (dct_matrice[i*8 + 0] - dct_matrice[i*8 + 7]) + tab_cosinus[5] * (dct_matrice[i*8 + 6] - dct_matrice[i*8 + 1]) - tab_cosinus[0] * (dct_matrice[i*8 + 2] - dct_matrice[i*8 + 5]) + tab_cosinus[3] * (dct_matrice[i*8 + 4] - dct_matrice[i*8 + 3]));
-        matrice[i*8 + 4] = 0.125 * (dct_matrice[i*8 + 0] - dct_matrice[i*8 + 1] - dct_matrice[i*8 + 2] + dct_matrice[i*8 + 3] + dct_matrice[i*8 + 4] - dct_matrice[i*8 + 5] - dct_matrice[i*8 + 6] + dct_matrice[i*8 + 7]);
-        matrice[i*8 + 5] = 0.125 * (tab_cosinus[3] * (dct_matrice[i*8 + 0] - dct_matrice[i*8 + 7]) + tab_cosinus[0] * (dct_matrice[i*8 + 6] - dct_matrice[i*8 + 1]) + tab_cosinus[5] * (dct_matrice[i*8 + 2] - dct_matrice[i*8 + 5]) - tab_cosinus[2] * (dct_matrice[i*8 + 4] - dct_matrice[i*8 + 3]));
-        matrice[i*8 + 6] = 0.125 * (tab_cosinus[4] * (dct_matrice[i*8 + 0] + dct_matrice[i*8 + 7] - dct_matrice[i*8 + 3] - dct_matrice[i*8 + 4]) - tab_cosinus[1] * (dct_matrice[i*8 + 1] + dct_matrice[i*8 + 6] - dct_matrice[i*8 + 2] - dct_matrice[i*8 + 5]));
-        matrice[i*8 + 7] = 0.125 * (tab_cosinus[5] * (dct_matrice[i*8 + 0] - dct_matrice[i*8 + 7]) + tab_cosinus[3] * (dct_matrice[i*8 + 6] - dct_matrice[i*8 + 1]) + tab_cosinus[2] * (dct_matrice[i*8 + 2] - dct_matrice[i*8 + 5]) + tab_cosinus[0] * (dct_matrice[i*8 + 4] - dct_matrice[i*8 + 3]));
+        matrice[i * 8 + 0] = 0.125 * (dct_matrice[i * 8 + 0] + dct_matrice[i * 8 + 1] + dct_matrice[i * 8 + 2] +
+                                      dct_matrice[i * 8 + 3] + dct_matrice[i * 8 + 4] + dct_matrice[i * 8 + 5] +
+                                      dct_matrice[i * 8 + 6] + dct_matrice[i * 8 + 7]);
+        matrice[i * 8 + 1] = 0.125 * (tab_cosinus[0] * (dct_matrice[i * 8 + 0] - dct_matrice[i * 8 + 7]) -
+                                      tab_cosinus[2] * (dct_matrice[i * 8 + 6] - dct_matrice[i * 8 + 1]) +
+                                      tab_cosinus[3] * (dct_matrice[i * 8 + 2] - dct_matrice[i * 8 + 5]) -
+                                      tab_cosinus[5] * (dct_matrice[i * 8 + 4] - dct_matrice[i * 8 + 3]));
+        matrice[i * 8 + 2] = 0.125 * (tab_cosinus[1] *
+                                      (dct_matrice[i * 8 + 0] + dct_matrice[i * 8 + 7] - dct_matrice[i * 8 + 3] -
+                                       dct_matrice[i * 8 + 4]) + tab_cosinus[4] *
+                                                                 (dct_matrice[i * 8 + 1] + dct_matrice[i * 8 + 6] -
+                                                                  dct_matrice[i * 8 + 2] - dct_matrice[i * 8 + 5]));
+        matrice[i * 8 + 3] = 0.125 * (tab_cosinus[2] * (dct_matrice[i * 8 + 0] - dct_matrice[i * 8 + 7]) +
+                                      tab_cosinus[5] * (dct_matrice[i * 8 + 6] - dct_matrice[i * 8 + 1]) -
+                                      tab_cosinus[0] * (dct_matrice[i * 8 + 2] - dct_matrice[i * 8 + 5]) +
+                                      tab_cosinus[3] * (dct_matrice[i * 8 + 4] - dct_matrice[i * 8 + 3]));
+        matrice[i * 8 + 4] = 0.125 * (dct_matrice[i * 8 + 0] - dct_matrice[i * 8 + 1] - dct_matrice[i * 8 + 2] +
+                                      dct_matrice[i * 8 + 3] + dct_matrice[i * 8 + 4] - dct_matrice[i * 8 + 5] -
+                                      dct_matrice[i * 8 + 6] + dct_matrice[i * 8 + 7]);
+        matrice[i * 8 + 5] = 0.125 * (tab_cosinus[3] * (dct_matrice[i * 8 + 0] - dct_matrice[i * 8 + 7]) +
+                                      tab_cosinus[0] * (dct_matrice[i * 8 + 6] - dct_matrice[i * 8 + 1]) +
+                                      tab_cosinus[5] * (dct_matrice[i * 8 + 2] - dct_matrice[i * 8 + 5]) -
+                                      tab_cosinus[2] * (dct_matrice[i * 8 + 4] - dct_matrice[i * 8 + 3]));
+        matrice[i * 8 + 6] = 0.125 * (tab_cosinus[4] *
+                                      (dct_matrice[i * 8 + 0] + dct_matrice[i * 8 + 7] - dct_matrice[i * 8 + 3] -
+                                       dct_matrice[i * 8 + 4]) - tab_cosinus[1] *
+                                                                 (dct_matrice[i * 8 + 1] + dct_matrice[i * 8 + 6] -
+                                                                  dct_matrice[i * 8 + 2] - dct_matrice[i * 8 + 5]));
+        matrice[i * 8 + 7] = 0.125 * (tab_cosinus[5] * (dct_matrice[i * 8 + 0] - dct_matrice[i * 8 + 7]) +
+                                      tab_cosinus[3] * (dct_matrice[i * 8 + 6] - dct_matrice[i * 8 + 1]) +
+                                      tab_cosinus[2] * (dct_matrice[i * 8 + 2] - dct_matrice[i * 8 + 5]) +
+                                      tab_cosinus[0] * (dct_matrice[i * 8 + 4] - dct_matrice[i * 8 + 3]));
     }
 }
 

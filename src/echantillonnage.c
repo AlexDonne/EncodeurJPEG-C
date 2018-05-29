@@ -3,8 +3,15 @@
 #include <math.h>
 #include <stdbool.h>
 
+/**
+ * fusionne les MCUs suivants les paramètres de sampling
+ * @param mcus_rgb
+ * @param h1
+ * @param l1
+ * @return
+ */
 MCUsMatrice *fusion_RGB(MCUsMatrice *mcus_rgb, int h1, int l1) {
-    if (h1 > 2 || l1 > 2){
+    if (h1 > 2 || l1 > 2) {
         printf("Echantillonnage non géré\n");
         exit(EXIT_FAILURE);
     }
@@ -20,7 +27,7 @@ MCUsMatrice *fusion_RGB(MCUsMatrice *mcus_rgb, int h1, int l1) {
         test_malloc(fusionmatrgb->mcus);
         for (int i = 0; i < fusionmatrgb->nblignes; ++i) {
             for (int j = 0; j < fusionmatrgb->nbcol; ++j) {
-                fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB = malloc(h1 * l1 * sizeof(PixelRGB*));
+                fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB = malloc(h1 * l1 * sizeof(PixelRGB *));
                 test_malloc(fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsRGB);
                 fusionmatrgb->mcus[i * fusionmatrgb->nbcol + j].blocsNB = NULL;
 
@@ -72,6 +79,12 @@ MCUsMatrice *fusion_RGB(MCUsMatrice *mcus_rgb, int h1, int l1) {
     }
 }
 
+/**
+ * echantillonne une matrice horizontalement
+ * @param mat1
+ * @param mat2
+ * @param echan_mat
+ */
 void echan_h(int16_t *mat1, int16_t *mat2, int16_t *echan_mat) {
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
@@ -84,6 +97,13 @@ void echan_h(int16_t *mat1, int16_t *mat2, int16_t *echan_mat) {
     }
 }
 
+
+/**
+* echantillonne une matrice verticalement
+* @param mat1
+* @param mat2
+* @param echan_mat
+*/
 void echan_v(int16_t *mat1, int16_t *mat2, int16_t *echan_mat) {
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
@@ -96,6 +116,12 @@ void echan_v(int16_t *mat1, int16_t *mat2, int16_t *echan_mat) {
     }
 }
 
+/**
+* echantillonne une matrice horizontalement et verticalement
+* @param mat1
+* @param mat2
+* @param echan_mat
+*/
 void echan_h_v(int16_t *mat1, int16_t *mat2, int16_t *mat3, int16_t *mat4, int16_t *echan_mat) {
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
@@ -131,59 +157,60 @@ void echan_h_v(int16_t *mat1, int16_t *mat2, int16_t *mat3, int16_t *mat4, int16
     }
 }
 
-
-void mcu_echantillonnage(MCUTransform *mcu, MCUTransform *echan_mcu, int h1, int l1, int h2, int l2, int h3, int l3) {
-    echan_mcu->tailleCb = h2 * l2;
-    echan_mcu->tailleCr = h3 * l3;
+/**
+ * echantillonne le mcu rentré en paramètres et modifie echan_mcu
+ * @param mcu
+ * @param echan_mcu
+ * @param parametres
+ */
+void mcu_echantillonnage(MCUTransform *mcu, MCUTransform *echan_mcu, int parametres[6]) {
+    echan_mcu->tailleCb = parametres[2] * parametres[3];
+    echan_mcu->tailleCr = parametres[4] * parametres[5];
     echan_mcu->tailleY = mcu->tailleY;
     echan_mcu->Y = mcu->Y;
     bool echantillonnageok = false;
-    //Allocation des mcus
-
-    if (h1 == h2 && l1 == l2) {
+    if (parametres[0] == parametres[2] && parametres[1] == parametres[3]) {
         echan_mcu->Cb = mcu->Cb;
         echantillonnageok = true;
-    }
-    else {
-        echan_mcu->Cb = malloc(echan_mcu->tailleCb * sizeof(void*));
+    } else {
+        echan_mcu->Cb = malloc(echan_mcu->tailleCb * sizeof(void *));
         for (int i = 0; i < echan_mcu->tailleCb; ++i) {
             echan_mcu->Cb[i] = malloc(64 * sizeof(int16_t));
         }
     }
-    if (h1 == h3 && l1 == l3) {
+    if (parametres[0] == parametres[4] && parametres[1] == parametres[5]) {
         echan_mcu->Cr = mcu->Cr;
         echantillonnageok = true;
-    }
-    else {
-        echan_mcu->Cr = malloc(echan_mcu->tailleCr * sizeof(void*));
+    } else {
+        echan_mcu->Cr = malloc(echan_mcu->tailleCr * sizeof(void *));
         for (int j = 0; j < echan_mcu->tailleCr; ++j) {
             echan_mcu->Cr[j] = malloc(64 * sizeof(int16_t));
 
         }
     }
 
-    if (h1 == 2 && l1 == 1) {
-        if (h2 == 1 && l2 == 1) {
+    if (parametres[0] == 2 && parametres[1] == 1) {
+        if (parametres[2] == 1 && parametres[3] == 1) {
             echan_h(mcu->Cb[0],
                     mcu->Cb[1],
                     echan_mcu->Cb[0]);
             echantillonnageok = true;
         }
-        if (h3 == 1 && l3 == 1) {
+        if (parametres[4] == 1 && parametres[5] == 1) {
             echan_h(mcu->Cr[0],
                     mcu->Cr[1],
                     echan_mcu->Cr[0]);
             echantillonnageok = true;
         }
     }
-    if (h1 == 1 && l1 == 2) {
-        if (h2 == 1 && l2 == 1) {
+    if (parametres[0] == 1 && parametres[1] == 2) {
+        if (parametres[2] == 1 && parametres[3] == 1) {
             echan_v(mcu->Cb[0],
                     mcu->Cb[1],
                     echan_mcu->Cb[0]);
             echantillonnageok = true;
         }
-        if (h3 == 1 && l3 == 1) {
+        if (parametres[4] == 1 && parametres[5] == 1) {
             echan_v(mcu->Cr[0],
                     mcu->Cr[1],
                     echan_mcu->Cr[0]);
@@ -191,79 +218,88 @@ void mcu_echantillonnage(MCUTransform *mcu, MCUTransform *echan_mcu, int h1, int
         }
 
     }
-    if (h1 == 2 && l1 == 2) {
-        if (h2 == 1 && l2 == 2) {
+    if (parametres[0] == 2 && parametres[1] == 2) {
+        if (parametres[2] == 1 && parametres[3] == 2) {
             echan_h(mcu->Cb[0], mcu->Cb[1], echan_mcu->Cb[0]);
             echan_h(mcu->Cb[2], mcu->Cb[3], echan_mcu->Cb[1]);
             echantillonnageok = true;
         }
-        if (h3 == 1 && l3 == 2) {
+        if (parametres[4] == 1 && parametres[5] == 2) {
             echan_h(mcu->Cr[0], mcu->Cr[1], echan_mcu->Cr[0]);
             echan_h(mcu->Cr[2], mcu->Cr[3], echan_mcu->Cr[1]);
             echantillonnageok = true;
         }
-        if (h3 == 1 && l3 == 1) {
+        if (parametres[4] == 1 && parametres[5] == 1) {
             echan_h_v(mcu->Cr[0],
                       mcu->Cr[1], mcu->Cr[2], mcu->Cr[3],
                       echan_mcu->Cr[0]);
             echantillonnageok = true;
         }
-        if (h2 == 1 && l2 == 1) {
+        if (parametres[2] == 1 && parametres[3] == 1) {
             echan_h_v(mcu->Cb[0],
                       mcu->Cb[1], mcu->Cb[2], mcu->Cb[3],
                       echan_mcu->Cb[0]);
             echantillonnageok = true;
         }
-        if (h2 == 2 && l2 == 1) {
+        if (parametres[2] == 2 && parametres[3] == 1) {
             echan_v(mcu->Cb[0], mcu->Cb[2], echan_mcu->Cb[0]);
             echan_v(mcu->Cb[1], mcu->Cb[3], echan_mcu->Cb[1]);
             echantillonnageok = true;
         }
-        if (h3 == 2 && l3 == 1) {
+        if (parametres[4] == 2 && parametres[5] == 1) {
             echan_v(mcu->Cr[0], mcu->Cr[2], echan_mcu->Cr[0]);
             echan_v(mcu->Cr[1], mcu->Cr[3], echan_mcu->Cr[1]);
             echantillonnageok = true;
         }
     }
-    if (!echantillonnageok){
+    if (!echantillonnageok) {
         printf("Format d'échantillonnage pas géré\n");
         exit(EXIT_FAILURE);
     }
 }
 
-
-void mat_mcu_echantillonnage(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu, int h1, int l1, int h2, int l2,
-                             int h3, int l3) {
+/**
+ * echantillonne tous les MCUs de la matrice matmcu
+ * @param matmcu
+ * @param echan_matmcu
+ * @param parametres
+ */
+void mat_mcu_echantillonnage(MCUsTransformMat *matmcu, MCUsTransformMat *echan_matmcu, int parametres[6]) {
     for (int i = 0; i < matmcu->nblignes * matmcu->nbcol; ++i) {
-        mcu_echantillonnage(&(matmcu->mcus[i]), &(echan_matmcu->mcus[i]), h1, l1, h2, l2, h3, l3);
+        mcu_echantillonnage(&(matmcu->mcus[i]), &(echan_matmcu->mcus[i]), parametres);
     }
 
 
 }
 
-
-MCUsTransformMat *echantillonnage(MCUsTransformMat *matmcu, int h1, int l1, int h2, int l2, int h3, int l3) {
+/**
+ * renvoie les matrices de MCUs echantillonnés
+ * @param matmcu
+ * @param parametres
+ * @return
+ */
+MCUsTransformMat *echantillonnage(MCUsTransformMat *matmcu, int parametres[6]) {
     if (matmcu->mcus->tailleCb == 0) {
         return matmcu;
     }
-    if (l1 == l2 && h1 == h2 && l1 == l3 && h1 == h3) {
-        //pas d'echantillonnage
+    if (parametres[1] == parametres[3] && parametres[0] == parametres[2] && parametres[1] == parametres[5] &&
+        parametres[0] == parametres[4]) {
         return matmcu;
 
     } else {
-        bool libererCb = h1 == h2 && l1 == l2;
-        bool libererCr = h1 == h3 && l1 == l3;
+        bool libererCb = parametres[0] == parametres[2] && parametres[1] == parametres[3];
+        bool libererCr = parametres[0] == parametres[4] && parametres[1] == parametres[5];
         MCUsTransformMat *echan_matmcu = malloc(sizeof(MCUsTransformMat));
         echan_matmcu->nblignes = matmcu->nblignes;
         echan_matmcu->nbcol = matmcu->nbcol;
         echan_matmcu->mcus = malloc(echan_matmcu->nbcol * echan_matmcu->nblignes * sizeof(MCUTransform));
-        mat_mcu_echantillonnage(matmcu, echan_matmcu, h1, l1, h2, l2, h3, l3);
-        if (!libererCb){
+        mat_mcu_echantillonnage(matmcu, echan_matmcu, parametres);
+        if (!libererCb) {
             for (int i = 0; i < matmcu->nbcol * matmcu->nblignes; ++i) {
                 libererCbs(&(matmcu->mcus[i]));
             }
         }
-        if (!libererCr){
+        if (!libererCr) {
             for (int i = 0; i < matmcu->nbcol * matmcu->nblignes; ++i) {
                 libererCrs(&(matmcu->mcus[i]));
             }

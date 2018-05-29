@@ -64,15 +64,16 @@ int main(int argc, char *argv[]) {
     if (echantillon != NULL) {
         paramEchantillonage(echantillon, &h1, &l1, &h2, &l2, &h3, &l3);
     }
-    MCUsMatrice *mat = imageToMCUs(image, l1);
+    int parametresEchantillonage[6] = {h1, l1, h2, l2, h3, l3};
+    MCUsMatrice *mat = imageToMCUs(image, h1, l1);
 
     mat = fusion_RGB(mat, h1, l1);
 
     MCUsTransformMat *mcusTransform = rgbTOycbcrAllMcus(mat, h1, l1);
 
-    mcusTransform = echantillonnage(mcusTransform, h1, l1, h2, l2, h3, l3);
+    mcusTransform = echantillonnage(mcusTransform, parametresEchantillonage);
 
     MCUsTransformToQuantif(mcusTransform);
-    ecrire_jpeg(image, mcusTransform, h1, l1, h2, l2, h3, l3);
+    ecrire_jpeg(image, mcusTransform, parametresEchantillonage);
     exit(EXIT_SUCCESS);
 }

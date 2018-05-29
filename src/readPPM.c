@@ -64,7 +64,7 @@ char *nouveauNom(char *chemin) {
 void lireFichierPPM(ImagePPM *image) {
     FILE *fichier = fopen(image->chemin, "rb");
     if (fichier == NULL) {
-        printf("Erreur ouverture fichier");
+        printf("Erreur ouverture fichier\n");
         exit(EXIT_FAILURE);
     }
     fgetc(fichier);

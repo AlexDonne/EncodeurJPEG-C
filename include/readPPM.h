@@ -14,7 +14,7 @@
  * @param chemin
  * @return
  */
-ImagePPM *creerImagePPM(char *chemin, char* nom);
+ImagePPM *creerImagePPM(char *chemin, char *nom);
 
 /**
  * Retourne le futur nom de l'image JPEG

@@ -90,10 +90,10 @@ void afficherMCUMatrice_NB(MCUPixels mcu) {
  * Affiche tous les MCUs
  * @param mcusTransformMat
  */
-void afficherAllMCUsTransform(MCUsTransformMat *mcusTransformMat){
+void afficherAllMCUsTransform(MCUsTransformMat *mcusTransformMat) {
     printf("%i, %i", mcusTransformMat->nblignes, mcusTransformMat->nbcol);
     for (int i = 0; i < mcusTransformMat->nblignes * mcusTransformMat->nbcol; ++i) {
-        printf("MCU #%d\n",i);
+        printf("MCU #%d\n", i);
 
         afficher_mcu_Transform(mcusTransformMat->mcus[i]);
     }
@@ -107,7 +107,7 @@ void afficher_mcu_Transform(MCUTransform mcu) {
     for (int i = 0; i < mcu.tailleY; ++i) {
         printf("Y%i\n", i);
         for (int j = 0; j < 64; ++j) {
-            if (j%8 == 0){
+            if (j % 8 == 0) {
                 printf("\n");
             }
             printf("%04hx ", mcu.Y[i][j]);
@@ -115,7 +115,7 @@ void afficher_mcu_Transform(MCUTransform mcu) {
         printf("\n\n");
     }
     if (mcu.Cb != NULL) {
-        for (int i = 0; i <mcu.tailleCb; ++i) {
+        for (int i = 0; i < mcu.tailleCb; ++i) {
             printf("[Cb%i]\n", i);
 
             for (int j = 0; j < 64; ++j) {
@@ -126,7 +126,7 @@ void afficher_mcu_Transform(MCUTransform mcu) {
             }
             printf("\n\n");
         }
-        for (int i = 0; i <mcu.tailleCr; ++i) {
+        for (int i = 0; i < mcu.tailleCr; ++i) {
             printf("[Cr%i]\n", i);
 
             for (int j = 0; j < 64; ++j) {

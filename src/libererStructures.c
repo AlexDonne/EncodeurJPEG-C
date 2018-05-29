@@ -1,11 +1,11 @@
 #include "../include/libererStructures.h"
 
 
- /**
- * Libère les tableaux de pixels de l'image
- * @param image
- * @param hauteur
- */
+/**
+* Libère les tableaux de pixels de l'image
+* @param image
+* @param hauteur
+*/
 void libererPixels(ImagePPM *image, int hauteur) {
     if (image->type == RGB) {
         libererPixelsRGB(image->pixelsRGB, hauteur);
@@ -38,7 +38,7 @@ void libererMCUsMatrice(MCUsMatrice *mcusMat) {
     free(mcusMat);
 }
 
-void libererMCUsPixels(MCUsMatrice *mcusMat){
+void libererMCUsPixels(MCUsMatrice *mcusMat) {
     if (mcusMat->type == RGB) {
         for (int i = 0; i < mcusMat->nblignes * mcusMat->nbcol; ++i) {
             for (int j = 0; j < mcusMat->mcus[i].tailleBlocs; ++j) {
@@ -84,14 +84,14 @@ void libererMCUTransform(MCUTransform *mcuTransform) {
     }
 }
 
-void libererCbs(MCUTransform *mcuTransform){
+void libererCbs(MCUTransform *mcuTransform) {
     for (int i = 0; i < mcuTransform->tailleCb; ++i) {
         free(mcuTransform->Cb[i]);
     }
     free(mcuTransform->Cb);
 }
 
-void libererCrs(MCUTransform *mcuTransform){
+void libererCrs(MCUTransform *mcuTransform) {
     for (int i = 0; i < mcuTransform->tailleCr; ++i) {
         free(mcuTransform->Cr[i]);
     }
