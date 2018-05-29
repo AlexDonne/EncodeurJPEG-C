@@ -10,6 +10,7 @@
 #include <string.h>
 #include "structures.h"
 #include "affichageStructures.h"
+#include "libererStructures.h"
 #include "algo_matrices.h"
 #include "test_malloc.h"
 
@@ -34,12 +35,6 @@ MCUsTransformMat *rgbTOycbcrAllMcus(MCUsMatrice *mcusMat, int h1, int l1);
  * @return
  */
 MCUTransform nbTOy(MCUPixels mcuPixels);
-
-/**
- * Libère l'espace mémoire occupée par une structure MCUsMatrice
- * @param mcusMat
- */
-void libererMCUsMatrice(MCUsMatrice *mcusMat);
 
 /**
  * Applique le DCT, le zigzag et la quantification pour tous les MCUS

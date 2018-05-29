@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "qtables.h"
 #include "structures.h"
+#include "affichageStructures.h"
 #include "test_malloc.h"
 #include "mon_bitstream.h"
 #include "jpeg_writer.h"
@@ -31,6 +32,7 @@ void ecrire_codage_AC_avec_RLE(struct bitstream *stream, int16_t *tab, enum colo
 /* Réalise toutes les étapes pour écrire le jpeg */
 void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform, int h1, int l1, int h2, int l2, int h3, int l3);
 
+<<<<<<< HEAD
 /* Libère l'espace mémoire d'une ImagePPM */
 void libererImage(ImagePPM *image);
 
@@ -40,4 +42,6 @@ void libererMCUsTransform(MCUsTransformMat *mcUsTransform);
 /* Libère l'espace mémoire d'une MCUTransform */
 void libererMCUTransform(MCUTransform *mcuTransform);
 
+=======
+>>>>>>> 6e4a0ee1e777a014d11298382d11acd54b0ef7b0
 #endif //ETU_CODAGE_HUFFMAN_RLE_H
