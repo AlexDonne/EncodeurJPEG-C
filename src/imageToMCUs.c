@@ -5,7 +5,7 @@
  * @param image
  * @return
  */
-MCUsMatrice *imageToMCUs(ImagePPM *image, int l1) {
+MCUsMatrice *imageToMCUs(ImagePPM *image, int h1, int l1) {
     int nouvHauteur = image->hauteur, nouvLargeur = image->largeur;
     if (image->largeur % 8 != 0 || image->hauteur % 8 != 0) {
         adaptationMCU(image, &nouvHauteur, &nouvLargeur);
@@ -57,9 +57,13 @@ MCUsMatrice *imageToMCUs(ImagePPM *image, int l1) {
         }
         matMCUs->mcus[indTab] = mcu;
     }
+    if(h1 == 2 && matMCUs->nbcol % 2 != 0){
+        adapterPourEchantillonageVertical(matMCUs, image->type);
+    }
     if (l1 == 2 && matMCUs->nblignes % 2 != 0) {
         adapterPourEchantillonageHorizontal(matMCUs, image->type);
     }
+
     matMCUs->type = image->type;
     libererPixels(image, nouvHauteur);
     return matMCUs;
@@ -116,6 +120,46 @@ void adapterPourEchantillonageHorizontal(MCUsMatrice *mcusMatrice, TYPE_IMAGE ty
     }
     mcusMatrice->mcus = nouv;
     mcusMatrice->nblignes++;
+}
+void adapterPourEchantillonageVertical(MCUsMatrice *mcusMatrice, TYPE_IMAGE type){
+    MCUPixels *nouv = realloc(mcusMatrice->mcus,
+                              (mcusMatrice->nblignes) * (mcusMatrice->nbcol+1) * sizeof(MCUPixels));
+    test_malloc(nouv);
+    if(type == RGB){
+        for (int i = 0, ind = mcusMatrice->nblignes * mcusMatrice->nbcol; i < mcusMatrice->nbcol; ++i, ++ind) {
+            MCUPixels mcu;
+            mcu.blocsRGB = malloc(1 * sizeof(PixelRGB*));
+            mcu.blocsRGB[0] = malloc(64 * sizeof(PixelRGB));
+            mcu.blocsNB = NULL;
+            mcu.tailleBlocs = 1;
+            test_malloc(mcu.blocsRGB);
+            int indice = i*mcusMatrice->nbcol + mcusMatrice->nbcol-1;
+            for (int j = 0, k=7; j <64 ; j+=8, k+=8) {
+                for (int l = 0; l < 8; ++l) {
+                    mcu.blocsRGB[0][j+l] = nouv[indice].blocsRGB[0][k];
+                }
+            }
+            nouv[ind] = mcu;
+            }
+    }else{
+        for (int i = 0, ind = mcusMatrice->nblignes * mcusMatrice->nbcol; i < mcusMatrice->nbcol; ++i, ++ind) {
+            MCUPixels mcu;
+            mcu.blocsNB = malloc(1 * sizeof(PixelRGB*));
+            mcu.blocsNB[0] = malloc(64 * sizeof(PixelRGB));
+            mcu.blocsRGB = NULL;
+            mcu.tailleBlocs = 1;
+            test_malloc(mcu.blocsNB);
+            int indice = i*mcusMatrice->nbcol + mcusMatrice->nbcol-1;
+            for (int j = 0, k=7; j <64 ; j+=8, k+=8) {
+                for (int l = 0; l < 8; ++l) {
+                    mcu.blocsNB[0][j+l] = nouv[indice].blocsNB[0][k];
+                }
+            }
+            nouv[ind] = mcu;
+        }
+        mcusMatrice->mcus = nouv;
+        mcusMatrice->nbcol++;
+    }
 }
 
 

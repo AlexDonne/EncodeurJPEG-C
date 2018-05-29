@@ -13,9 +13,12 @@
  * @param image
  * @return
  */
-MCUsMatrice *imageToMCUs(ImagePPM *image,  int l1);
+MCUsMatrice *imageToMCUs(ImagePPM *image,  int h1, int l1);
 
 void adapterPourEchantillonageHorizontal(MCUsMatrice * mcusMatrice, TYPE_IMAGE type);
+
+
+void adapterPourEchantillonageVertical(MCUsMatrice * mcusMatrice, TYPE_IMAGE type);
 
 /**
  * Duplique les dernières lignes ou/et dernières colonnes pour avoir une hauteur et une largeur multiple de 8
