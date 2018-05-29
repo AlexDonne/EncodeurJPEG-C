@@ -1,6 +1,7 @@
 #include "../include/codage_huffman_RLE.h"
 #include "../include/htables.h"
 
+/* Ecrit le codage differentiel DC pour la valeur nombre selon la composante cc */
 void ecrire_codage_differenciel_DC(struct bitstream *stream, int16_t nombre, enum color_component cc) {
     uint8_t magnitude;
     uint16_t indice;
@@ -10,9 +11,8 @@ void ecrire_codage_differenciel_DC(struct bitstream *stream, int16_t nombre, enu
     //printf("writing %i over %i bits\n", indice, magnitude);
 }
 
-
+/* Ecrit dans magnitude un nombre entre 0 et 11 correspondant à la magnitude de nombre et dans indice son indice correspondant */
 void magnitude_indice(int16_t nombre, uint8_t *magnitude, uint16_t *indice) {
-    /* ecrit dans magnitude un nombre entre 0 et 11 correspondant à la magnitude et dans indice son indice correspondant */
     uint16_t abs_nombre = (nombre < 0) ? -nombre : nombre;
     uint16_t N = 1024;
     *magnitude = 11;
@@ -24,7 +24,7 @@ void magnitude_indice(int16_t nombre, uint8_t *magnitude, uint16_t *indice) {
                                           1; // indice dans la classe, le nombre de bits que l'on écrit est exactement la classe
 }
 
-
+/* Ecrit le codage Huffman de nombre selon les tables de Huffman associées au sample_type acdc et de la color_component cc */
 void ecrire_codage_huffman(struct bitstream *stream, uint32_t nombre, enum sample_type acdc, enum color_component cc) {
     uint8_t *tab_nb_symb_per_lengths = htables_nb_symb_per_lengths[acdc][cc];
     uint8_t *tab_symbols = htables_symbols[acdc][cc];
@@ -40,7 +40,6 @@ void ecrire_codage_huffman(struct bitstream *stream, uint32_t nombre, enum sampl
             indice--;
             if (indice == 0) {
                 bitstream_write_nbits(stream, current, i + 1, false);
-                //printf("writing %i over %i bits\n", current, i + 1);
                 return;
             }
             current++;
@@ -49,6 +48,7 @@ void ecrire_codage_huffman(struct bitstream *stream, uint32_t nombre, enum sampl
     }
 }
 
+/* Ecrit le codage AC avec RLE pour le bloc 8x8 tab */
 void ecrire_codage_AC_avec_RLE(struct bitstream *stream, int16_t *tab, enum color_component cc) {
 
     uint8_t nbr_coeff0_prec = 0;
@@ -70,14 +70,12 @@ void ecrire_codage_AC_avec_RLE(struct bitstream *stream, int16_t *tab, enum colo
             nombre = (nbr_coeff0_prec << 4) + magnitude;
             ecrire_codage_huffman(stream, nombre, AC, cc);
             bitstream_write_nbits(stream, indice, magnitude, false);
-            //printf("writing %i over %i bits\n", indice, magnitude);
             nbr_coeff0_prec = 0;
         }
     }
-    //printf("\n");
 }
 
-
+/* Ecrit toute l'entête jpeg */
 struct bitstream *ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filename, const char *jpeg_filename,
                                 uint32_t image_height, uint32_t image_width, bool couleur, int h1, int l1, int h2, int l2, int h3, int l3) {
     jpeg_desc_set_ppm_filename(jdesc, ppm_filename);
@@ -133,7 +131,7 @@ struct bitstream *ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filenam
     return jpeg_desc_get_bitstream(jdesc);
 }
 
-
+/* Réalise toutes les étapes pour écrire le jpeg */
 void ecrire_jpeg(ImagePPM *image, MCUsTransformMat *mcusTransform, int h1, int l1, int h2, int l2, int h3, int l3) {
     struct jpeg_desc *jdesc = jpeg_desc_create();
     if (image->type == RGB) {
@@ -223,6 +221,7 @@ void libererImage(ImagePPM *image) {
     free(image);
 }
 
+/* Libère l'espace mémoire d'une MCUsTransformMat */
 void libererMCUsTransform(MCUsTransformMat *mcUsTransform) {
     for (int i = 0; i < mcUsTransform->nblignes * mcUsTransform->nbcol; ++i) {
         libererMCUTransform(&(mcUsTransform->mcus[i]));
@@ -231,6 +230,7 @@ void libererMCUsTransform(MCUsTransformMat *mcUsTransform) {
     free(mcUsTransform);
 }
 
+/* Libère l'espace mémoire d'une MCUTransform */
 void libererMCUTransform(MCUTransform *mcuTransform) {
     for (int i = 0; i < mcuTransform->tailleY; ++i) {
         free(mcuTransform->Y[i]);
