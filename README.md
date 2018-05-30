@@ -4,7 +4,7 @@ Pour lancer le programme avec echantillonage : ./ppm2jpeg image --sample 2x2,1x1
 Pour choisir le nom de l'image : ./ppm2jpeg image --output-file nom
 
 **Script Shell qui teste chaque échantillonage sur une image, créé un dossier contenant toutes ces images:**
-**exemple** ./test.sh images/shaun-the-sheep.ppm shaun
+**exemple** ./test.sh images/shaun-the-sheep.ppm shaun : 2 arguments requis, le chemin vers l'image et le nom du dossier à créer 
 
 ##Rôle des différents modules :
 
@@ -33,8 +33,8 @@ Pour choisir le nom de l'image : ./ppm2jpeg image --output-file nom
 * **sortie** : le fichier jpeg 
 * **rôle** : 
 
-###echantillonage
-* Fusionne et échantillone les MCUS.
+###echantillonnage
+* Fusionne et échantillonne les MCUS.
 
 ###structures
 * Répertorie les différentes structures utilisées, qui sont utilisées à plusieurs endroits différents
