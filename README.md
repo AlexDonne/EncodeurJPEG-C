@@ -1,5 +1,11 @@
 #Projet Encodeur JPEG
 
+Pour lancer le programme avec echantillonage : ./ppm2jpeg image --sample 2x2,1x1,1x1 (par exemple) 
+Pour choisir le nom de l'image : ./ppm2jpeg image --output-file nom
+
+**Script Shell qui teste chaque échantillonage sur une image, créé un dossier contenant toutes ces images:**
+**exemple** ./test.sh images/shaun-the-sheep.ppm shaun
+
 ##Rôle des différents modules :
 
 ###readPPM : 
@@ -27,11 +33,17 @@
 * **sortie** : le fichier jpeg 
 * **rôle** : 
 
-###strucures
+###echantillonage
+* Fusionne et échantillone les MCUS.
+
+###structures
 * Répertorie les différentes structures utilisées, qui sont utilisées à plusieurs endroits différents
 
 ###affichageStructures 
 * Contient les fonctions pour afficher n'importe quelle structure. 
+
+###libererStructures 
+* Contient les fonctions pour libérer n'importe quelle structure. 
 
 ###test_malloc
 * Contient une fonction qui teste si un pointeur est NULL, utilisé à chaque fois que nous faisons un malloc/calloc.

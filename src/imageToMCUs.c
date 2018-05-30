@@ -58,11 +58,11 @@ MCUsMatrice *imageToMCUs(ImagePPM *image, int h1, int l1) {
         matMCUs->mcus[indTab] = mcu;
     }
     if (image->type == RGB) {
-        if (h1 == 2 && matMCUs->nbcol % 2 != 0) {
-            adapterPourEchantillonageVertical(matMCUs);
-        }
         if (l1 == 2 && matMCUs->nblignes % 2 != 0) {
             adapterPourEchantillonageHorizontal(matMCUs);
+        }
+        if (h1 == 2 && matMCUs->nbcol % 2 != 0) {
+            adapterPourEchantillonageVertical(matMCUs);
         }
     }
 

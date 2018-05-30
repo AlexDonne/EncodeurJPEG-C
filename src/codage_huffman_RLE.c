@@ -117,7 +117,7 @@ struct bitstream *ecrire_entete(struct jpeg_desc *jdesc, const char *ppm_filenam
     jpeg_desc_set_jpeg_filename(jdesc, jpeg_filename);
     jpeg_desc_set_image_width(jdesc, image_width);
     jpeg_desc_set_image_height(jdesc, image_height);
-    jpeg_desc_set_comment(jdesc, "<3 le projet C");
+    jpeg_desc_set_comment(jdesc, "Vive l'Empereur");
     if (couleur) {
         jpeg_desc_set_nb_components(jdesc, 3);
         jpeg_desc_set_sampling_factor(jdesc, Y, H, parametres[0]);

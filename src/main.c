@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     char *chemin = NULL;
+
     char *echantillon = NULL;
     char *nom = NULL;
     for (int i = 1; i < argc; ++i) {
@@ -65,6 +66,7 @@ int main(int argc, char *argv[]) {
         paramEchantillonage(echantillon, &h1, &l1, &h2, &l2, &h3, &l3);
     }
     int parametresEchantillonage[6] = {h1, l1, h2, l2, h3, l3};
+
     MCUsMatrice *mat = imageToMCUs(image, h1, l1);
 
     mat = fusion_RGB(mat, h1, l1);
